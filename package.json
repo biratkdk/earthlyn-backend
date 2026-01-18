@@ -16,7 +16,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "ts-node prisma/seed.ts"
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "postinstall": "npx prisma generate"
   },
   "dependencies": {
     "@nestjs/bull": "^10.0.1",
@@ -58,8 +59,8 @@
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "webpack": "5.104.1",
-    "webpack-cli": "6.0.1"
+    "webpack": "^5.104.1",
+    "webpack-cli": "^6.0.1"
   },
   "engines": {
     "node": ">=18.0.0"
