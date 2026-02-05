@@ -10,6 +10,8 @@ import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
+  private readonly VALID_ROLES = ['ADMIN', 'SELLER', 'BUYER', 'CUSTOMER_SERVICE'];
+
   constructor(
     private prismaService: PrismaService,
     private jwtService: JwtService,
@@ -24,14 +26,13 @@ export class AuthService {
 
     // Validate and normalize role
     const normalizedRole = registerDto.role?.toUpperCase().trim();
-    const validRoles = Object.values(UserRole);
-    if (!normalizedRole || !validRoles.includes(normalizedRole as UserRole)) {
+    if (!normalizedRole || !this.VALID_ROLES.includes(normalizedRole)) {
       throw new BadRequestException('Invalid role. Must be one of: ADMIN, SELLER, BUYER, CUSTOMER_SERVICE');
     }
 
     const hashedPassword = await bcrypt.hash(
       registerDto.password,
-      this.configService.get<number>('bcrypt.rounds'),
+      this.configService.get<number>('bcrypt.rounds') || 10,
     );
 
     const user = await this.prismaService.user.create({
