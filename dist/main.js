@@ -317,6 +317,7 @@ const jwt_1 = __webpack_require__(6);
 const bcrypt = __importStar(__webpack_require__(14));
 const config_1 = __webpack_require__(5);
 const prisma_service_1 = __webpack_require__(8);
+const client_1 = __webpack_require__(9);
 let AuthService = class AuthService {
     constructor(prismaService, jwtService, configService) {
         this.prismaService = prismaService;
@@ -329,13 +330,18 @@ let AuthService = class AuthService {
         });
         if (existingUser)
             throw new common_1.ConflictException('User already exists');
+        const normalizedRole = registerDto.role?.toUpperCase().trim();
+        const validRoles = Object.values(client_1.UserRole);
+        if (!normalizedRole || !validRoles.includes(normalizedRole)) {
+            throw new common_1.BadRequestException('Invalid role. Must be one of: ADMIN, SELLER, BUYER, CUSTOMER_SERVICE');
+        }
         const hashedPassword = await bcrypt.hash(registerDto.password, this.configService.get('bcrypt.rounds'));
         const user = await this.prismaService.user.create({
             data: {
                 email: registerDto.email,
                 name: registerDto.name,
                 passwordHash: hashedPassword,
-                role: registerDto.role,
+                role: normalizedRole,
             },
         });
         const accessToken = this.jwtService.sign({
@@ -376,17 +382,9 @@ let AuthService = class AuthService {
         };
     }
     async validateUser(userId) {
-        const user = await this.prismaService.user.findUnique({
+        return await this.prismaService.user.findUnique({
             where: { id: userId },
         });
-        if (!user)
-            throw new common_1.UnauthorizedException('User not found');
-        return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-        };
     }
 };
 exports.AuthService = AuthService;
@@ -528,11 +526,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RegisterDto = void 0;
 const class_validator_1 = __webpack_require__(17);
-const client_1 = __webpack_require__(9);
 class RegisterDto {
 }
 exports.RegisterDto = RegisterDto;
@@ -550,10 +546,6 @@ __decorate([
     (0, class_validator_1.MinLength)(6),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "password", void 0);
-__decorate([
-    (0, class_validator_1.IsEnum)(client_1.UserRole),
-    __metadata("design:type", typeof (_a = typeof client_1.UserRole !== "undefined" && client_1.UserRole) === "function" ? _a : Object)
-], RegisterDto.prototype, "role", void 0);
 
 
 /***/ }),

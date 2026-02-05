@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
@@ -6,6 +6,7 @@ import { PrismaService } from '../database/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,13 @@ export class AuthService {
     });
     if (existingUser) throw new ConflictException('User already exists');
 
+    // Validate and normalize role
+    const normalizedRole = registerDto.role?.toUpperCase().trim();
+    const validRoles = Object.values(UserRole);
+    if (!normalizedRole || !validRoles.includes(normalizedRole as UserRole)) {
+      throw new BadRequestException('Invalid role. Must be one of: ADMIN, SELLER, BUYER, CUSTOMER_SERVICE');
+    }
+
     const hashedPassword = await bcrypt.hash(
       registerDto.password,
       this.configService.get<number>('bcrypt.rounds'),
@@ -31,7 +39,7 @@ export class AuthService {
         email: registerDto.email,
         name: registerDto.name,
         passwordHash: hashedPassword,
-        role: registerDto.role,
+        role: normalizedRole as UserRole,
       },
     });
 
@@ -78,15 +86,8 @@ export class AuthService {
   }
 
   async validateUser(userId: string) {
-    const user = await this.prismaService.user.findUnique({
+    return await this.prismaService.user.findUnique({
       where: { id: userId },
     });
-    if (!user) throw new UnauthorizedException('User not found');
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    };
   }
 }

@@ -1,5 +1,4 @@
-import { IsEmail, IsString, MinLength, IsEnum } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsEmail, IsString, MinLength } from 'class-validator';
 import { UserRole } from '@prisma/client';
 
 export class RegisterDto {
@@ -14,7 +13,5 @@ export class RegisterDto {
   @MinLength(6)
   password: string;
 
-  @Transform(({ value }) => value?.toUpperCase?.())
-  @IsEnum(UserRole)
-  role: UserRole;
+  role: string; // Accept as string, validate manually in service
 }
