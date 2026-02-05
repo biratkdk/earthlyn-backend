@@ -4,10 +4,10 @@ import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { logger: false });
   
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:3001",
+    origin: "*",
     credentials: true,
   });
   
@@ -19,7 +19,6 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger setup
   const config = new DocumentBuilder()
     .setTitle("EARTHLYN Backend API")
     .setDescription("E-commerce API for sustainable products")
@@ -32,8 +31,11 @@ async function bootstrap() {
   
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  console.log(`Application listening on port ${port}`);
-  console.log(`Swagger docs available at http://localhost:${port}/api/docs`);
+  console.log(`? API running on port ${port}`);
+  console.log(`? Swagger docs at http://localhost:${port}/api/docs`);
 }
 
-bootstrap();
+bootstrap().catch(err => {
+  console.error("Failed to start:", err.message);
+  process.exit(1);
+});
