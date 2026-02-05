@@ -1,57 +1,46 @@
-﻿import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-  async create(sellerId: string, createProductDto: CreateProductDto) {
-    return this.prismaService.product.create({
+  async create(data: any) {
+    return this.prisma.product.create({
       data: {
-        ...createProductDto,
-        sellerId,
+        name: data.name,
+        price: data.price,
+        stock: data.stock,
+        sellerId: data.sellerId,
+        description: data.description || '',
+        ecoScore: data.ecoScore || 0,
+        category: data.category || 'other',
+        processingFee: data.processingFee || 0,
       },
+      include: { seller: true },
     });
   }
 
-  async findAll(filters?: { category?: string; sellerId?: string }) {
-    return this.prismaService.product.findMany({
-      where: filters,
-      include: {
-        seller: true,
-      },
+  async findAll(filters?: any) {
+    return this.prisma.product.findMany({
+      where: filters || {},
+      include: { seller: true },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   async findOne(id: string) {
-    return this.prismaService.product.findUnique({
+    return this.prisma.product.findUnique({
       where: { id },
-      include: {
-        seller: true,
-        orders: true,
-      },
+      include: { seller: true },
     });
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
-    return this.prismaService.product.update({
-      where: { id },
-      data: updateProductDto,
-    });
+  async update(id: string, data: any) {
+    return this.prisma.product.update({ where: { id }, data, include: { seller: true } });
   }
 
-  async remove(id: string) {
-    return this.prismaService.product.delete({
-      where: { id },
-    });
-  }
-
-  async findBySeller(sellerId: string) {
-    return this.prismaService.product.findMany({
-      where: { sellerId },
-      orderBy: { createdAt: 'desc' },
-    });
+  async delete(id: string) {
+    return this.prisma.product.delete({ where: { id } });
   }
 }

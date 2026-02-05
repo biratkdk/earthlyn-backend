@@ -7,7 +7,6 @@ export class DeliveryManagementService {
   constructor(private prisma: PrismaService) {}
 
   async getOrdersByStatus(userId: string, status?: DeliveryStatus) {
-    // Get orders for a seller by their product's delivery status
     const where: any = { product: { seller: { userId } } };
     if (status) {
       where.product = { ...where.product, deliveryStatus: status };
@@ -32,13 +31,12 @@ export class DeliveryManagementService {
     const order = await this.prisma.order.update({
       where: { id: orderId },
       data: {
-        status: status === 'DELIVERED' ? 'COMPLETED' : 'PENDING',
+        status: status === 'DELIVERED' ? 'DELIVERED' : 'PENDING',
         deliveryTrackingId: trackingId || product.id,
         deliveredAt: status === 'DELIVERED' ? new Date() : null,
       },
     });
     
-    // Update product delivery status
     await this.prisma.product.update({
       where: { id: product.id },
       data,
@@ -48,7 +46,6 @@ export class DeliveryManagementService {
   }
 
   async getDeliveryStats(userId: string) {
-    // Get stats for seller's products
     const products = await this.prisma.product.findMany({
       where: { seller: { userId } },
     });

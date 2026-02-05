@@ -1,60 +1,40 @@
-﻿import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  Request,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Req } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 @Controller('products')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
-
-  @Post()
-  @UseGuards(JwtAuthGuard)
-  create(@Request() req, @Body() createProductDto: CreateProductDto) {
-    return this.productService.create(req.user.id, createProductDto);
-  }
+  constructor(private productService: ProductService) {}
 
   @Get()
-  findAll(
-    @Query('category') category?: string,
-    @Query('sellerId') sellerId?: string,
-  ) {
-    return this.productService.findAll({ category, sellerId });
+  async findAll() {
+    return this.productService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const product = await this.productService.findOne(id);
+    return { product };
+  }
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  async create(@Body() body: any, @Req() req: any) {
+    return this.productService.create({
+      ...body,
+      sellerId: req.user.id,
+    });
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  update(
-    @Param('id') id: string,
-    @Body() updateProductDto: UpdateProductDto,
-  ) {
-    return this.productService.update(id, updateProductDto);
+  async update(@Param('id') id: string, @Body() body: any) {
+    return this.productService.update(id, body);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string) {
-    return this.productService.remove(id);
-  }
-
-  @Get('seller/:sellerId')
-  findBySeller(@Param('sellerId') sellerId: string) {
-    return this.productService.findBySeller(sellerId);
+  async delete(@Param('id') id: string) {
+    return this.productService.delete(id);
   }
 }
