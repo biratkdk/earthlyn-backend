@@ -29,6 +29,8 @@ model User {
   sentMessages   Message[]   @relation("Sender")
   receivedMessages Message[] @relation("Receiver")
   transactions   Transaction[]
+  adminAudits   AdminAudit[]
+  moderations   MessageModeration[] @relation("UserModerations")
   ecoImpacts    EcoImpact[]
   orders        Order[]
 
@@ -204,7 +206,7 @@ model MessageModeration {
   createdAt   DateTime  @default(now()) @map("created_at")
 
   message     Message   @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  flaggedBy   User      @relation(fields: [flaggedById], references: [id], onDelete: Cascade)
+  flaggedBy   User      @relation("UserModerations", fields: [flaggedById], references: [id], onDelete: Cascade)
 
   @@map("message_moderations")
   @@index([messageId])
