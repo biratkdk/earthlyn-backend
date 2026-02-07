@@ -317,12 +317,12 @@ const jwt_1 = __webpack_require__(6);
 const bcrypt = __importStar(__webpack_require__(14));
 const config_1 = __webpack_require__(5);
 const prisma_service_1 = __webpack_require__(8);
-const client_1 = __webpack_require__(9);
 let AuthService = class AuthService {
     constructor(prismaService, jwtService, configService) {
         this.prismaService = prismaService;
         this.jwtService = jwtService;
         this.configService = configService;
+        this.VALID_ROLES = ['ADMIN', 'SELLER', 'BUYER', 'CUSTOMER_SERVICE'];
     }
     async register(registerDto) {
         const existingUser = await this.prismaService.user.findUnique({
@@ -331,11 +331,10 @@ let AuthService = class AuthService {
         if (existingUser)
             throw new common_1.ConflictException('User already exists');
         const normalizedRole = registerDto.role?.toUpperCase().trim();
-        const validRoles = Object.values(client_1.UserRole);
-        if (!normalizedRole || !validRoles.includes(normalizedRole)) {
+        if (!normalizedRole || !this.VALID_ROLES.includes(normalizedRole)) {
             throw new common_1.BadRequestException('Invalid role. Must be one of: ADMIN, SELLER, BUYER, CUSTOMER_SERVICE');
         }
-        const hashedPassword = await bcrypt.hash(registerDto.password, this.configService.get('bcrypt.rounds'));
+        const hashedPassword = await bcrypt.hash(registerDto.password, this.configService.get('bcrypt.rounds') || 10);
         const user = await this.prismaService.user.create({
             data: {
                 email: registerDto.email,

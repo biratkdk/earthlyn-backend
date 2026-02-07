@@ -10,15 +10,11 @@ export class PaymentService {
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string>("STRIPE_SECRET_KEY");
     if (!apiKey) {
-      console.warn(`Warning: STRIPE_SECRET_KEY not configured, using Stripe test key`);
-      this.stripe = new Stripe("sk_test_4eC39HqLyjWDarhtT657As", {
-        timeout: 90000,
-      });
-    } else {
-      this.stripe = new Stripe(apiKey, {
-        timeout: 90000,
-      });
+      throw new Error("STRIPE_SECRET_KEY is not configured");
     }
+    this.stripe = new Stripe(apiKey, {
+      timeout: 90000,
+    });
   }
 
   async createPaymentIntent(

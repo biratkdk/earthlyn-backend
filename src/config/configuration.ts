@@ -4,7 +4,7 @@
   },
   jwt: {
     secret: process.env.JWT_SECRET,
-    expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+    expiresIn: process.env.JWT_EXPIRATION || process.env.JWT_EXPIRES_IN || '24h',
   },
   stripe: {
     secretKey: process.env.STRIPE_SECRET_KEY,

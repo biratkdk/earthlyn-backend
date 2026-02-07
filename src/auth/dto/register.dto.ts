@@ -1,5 +1,4 @@
 import { IsEmail, IsString, MinLength } from 'class-validator';
-import { UserRole } from '@prisma/client';
 
 export class RegisterDto {
   @IsEmail()
@@ -13,5 +12,6 @@ export class RegisterDto {
   @MinLength(6)
   password: string;
 
-  role: string; // Accept as string, validate manually in service
+  @IsString()
+  role: string; // Validated in service
 }
