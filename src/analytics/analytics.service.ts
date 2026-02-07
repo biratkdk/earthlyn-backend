@@ -123,12 +123,8 @@ export class AnalyticsService {
   }
 
   async getTopCategories(limit: number = 10) {
-    const categories = await this.prisma.product.groupBy({
-      by: ['category'],
-      _count: { _all: true },
-      orderBy: { _count: { _all: 'desc' } },
-      take: limit,
-    });
-    return categories.map((c) => ({ category: c.category, count: c._count._all }));
+    const rows: Array<{ category: string; count: bigint }> = await this.prisma
+      .$queryRaw`SELECT category, COUNT(*)::bigint AS count FROM products GROUP BY category ORDER BY count DESC LIMIT ${limit}`;
+    return rows.map((r) => ({ category: r.category, count: Number(r.count) }));
   }
 }

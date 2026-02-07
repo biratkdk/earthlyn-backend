@@ -36,8 +36,12 @@ import { FulfillmentModule } from './fulfillment/fulfillment.module';
     ThrottlerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        ttl: Number(configService.get('THROTTLE_TTL') || 60),
-        limit: Number(configService.get('THROTTLE_LIMIT') || 10),
+        throttlers: [
+          {
+            ttl: Number(configService.get('THROTTLE_TTL') || 60),
+            limit: Number(configService.get('THROTTLE_LIMIT') || 10),
+          },
+        ],
       }),
     }),
     ScheduleModule.forRoot(),
