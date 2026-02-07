@@ -35,7 +35,7 @@ export class AdminDisputesController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateDisputeDto) {
-    return this.service.update(id, dto);
+  async update(@Request() req, @Param('id') id: string, @Body() dto: UpdateDisputeDto) {
+    return this.service.update(id, req.user.id, dto);
   }
 }

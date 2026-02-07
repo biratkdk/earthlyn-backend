@@ -3,6 +3,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 import { DatabaseModule } from './database/database.module';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
@@ -23,6 +24,7 @@ import { RolesGuard } from './common/guards/roles.guard';
 import { DisputesModule } from './disputes/disputes.module';
 import { ReferralsModule } from './referrals/referrals.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { FulfillmentModule } from './fulfillment/fulfillment.module';
 
 @Module({
   imports: [
@@ -38,6 +40,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
         limit: Number(configService.get('THROTTLE_LIMIT') || 10),
       }),
     }),
+    ScheduleModule.forRoot(),
     JwtModule.registerAsync({
       global: true,
       useFactory: (configService: ConfigService) => ({
@@ -65,6 +68,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
     DisputesModule,
     ReferralsModule,
     SubscriptionsModule,
+    FulfillmentModule,
   ],
   controllers: [AppController],
   providers: [

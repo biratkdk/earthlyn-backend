@@ -91,4 +91,44 @@ export class AnalyticsService {
       total: await this.prisma.product.count(),
     };
   }
+
+  async getReferralStats() {
+    const total = await this.prisma.referral.count();
+    const pending = await this.prisma.referral.count({ where: { status: 'PENDING' } });
+    const completed = await this.prisma.referral.count({ where: { status: 'COMPLETED' } });
+    return { total, pending, completed };
+  }
+
+  async getSubscriptionStats() {
+    const total = await this.prisma.subscription.count();
+    const active = await this.prisma.subscription.count({ where: { status: 'ACTIVE' } });
+    const cancelled = await this.prisma.subscription.count({ where: { status: 'CANCELLED' } });
+    const expired = await this.prisma.subscription.count({ where: { status: 'EXPIRED' } });
+    return { total, active, cancelled, expired };
+  }
+
+  async getBuyerRetention() {
+    const buyers = await this.prisma.user.findMany({
+      where: { role: 'BUYER' },
+      select: { id: true },
+    });
+    const buyerIds = buyers.map((b) => b.id);
+    const repeatBuyers = await this.prisma.order.groupBy({
+      by: ['buyerId'],
+      where: { buyerId: { in: buyerIds } },
+      _count: { _all: true },
+    });
+    const retained = repeatBuyers.filter((b) => b._count._all >= 2).length;
+    return { totalBuyers: buyerIds.length, repeatBuyers: retained };
+  }
+
+  async getTopCategories(limit: number = 10) {
+    const categories = await this.prisma.product.groupBy({
+      by: ['category'],
+      _count: { _all: true },
+      orderBy: { _count: { _all: 'desc' } },
+      take: limit,
+    });
+    return categories.map((c) => ({ category: c.category, count: c._count._all }));
+  }
 }

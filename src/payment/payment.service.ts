@@ -42,6 +42,10 @@ export class PaymentService {
         description: `Order from user ${userId} with ${items.length} item(s)`,
       });
 
+      if (orderId) {
+        await this.upsertPaymentRecord(orderId, paymentIntent.id, amount, 'PENDING');
+      }
+
       return {
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
@@ -62,6 +66,7 @@ export class PaymentService {
       const orderId = paymentIntent.metadata?.orderId;
       if (orderId) {
         await this.prismaUpdateOrderPayment(orderId, 'SUCCEEDED', paymentIntentId);
+        await this.upsertPaymentRecord(orderId, paymentIntentId, paymentIntent.amount / 100, 'SUCCEEDED');
       }
       return {
         status: paymentIntent.status,
@@ -86,6 +91,7 @@ export class PaymentService {
       const orderId = paymentIntent.metadata?.orderId;
       if (orderId) {
         await this.prismaUpdateOrderPayment(orderId, 'REFUNDED', paymentIntentId);
+        await this.upsertPaymentRecord(orderId, paymentIntentId, paymentIntent.amount / 100, 'REFUNDED');
       }
       return {
         refundId: refund.id,
@@ -128,6 +134,7 @@ export class PaymentService {
         const orderId = intent.metadata?.orderId;
         if (orderId) {
           await this.prismaUpdateOrderPayment(orderId, "SUCCEEDED", intent.id);
+          await this.upsertPaymentRecord(orderId, intent.id, intent.amount / 100, "SUCCEEDED");
         }
         break;
       }
@@ -136,6 +143,7 @@ export class PaymentService {
         const orderId = intent.metadata?.orderId;
         if (orderId) {
           await this.prismaUpdateOrderPayment(orderId, "FAILED", intent.id);
+          await this.upsertPaymentRecord(orderId, intent.id, intent.amount / 100, "FAILED");
         }
         break;
       }
@@ -147,6 +155,7 @@ export class PaymentService {
           const orderId = paymentIntent.metadata?.orderId;
           if (orderId) {
             await this.prismaUpdateOrderPayment(orderId, "REFUNDED", paymentIntent.id);
+            await this.upsertPaymentRecord(orderId, paymentIntent.id, paymentIntent.amount / 100, "REFUNDED");
           }
         }
         break;
@@ -170,6 +179,36 @@ export class PaymentService {
       });
     } catch {
       // best-effort update
+    }
+  }
+
+  private async upsertPaymentRecord(
+    orderId: string,
+    stripeIntentId: string,
+    amount: number,
+    status: 'PENDING' | 'SUCCEEDED' | 'FAILED' | 'REFUNDED',
+  ) {
+    try {
+      const existing = await this.prismaService.payment.findFirst({
+        where: { orderId },
+      });
+      if (existing) {
+        await this.prismaService.payment.update({
+          where: { id: existing.id },
+          data: { status, stripeIntentId, amount },
+        });
+        return;
+      }
+      await this.prismaService.payment.create({
+        data: {
+          orderId,
+          stripeIntentId,
+          amount,
+          status,
+        },
+      });
+    } catch {
+      // best-effort
     }
   }
 }

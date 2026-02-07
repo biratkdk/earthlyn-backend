@@ -1,4 +1,5 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
+import { DisputePriority } from '@prisma/client';
 
 export class CreateDisputeDto {
   @IsString()
@@ -6,4 +7,8 @@ export class CreateDisputeDto {
 
   @IsString()
   reason: string;
+
+  @IsOptional()
+  @IsString()
+  priority?: DisputePriority;
 }

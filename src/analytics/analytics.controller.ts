@@ -38,4 +38,24 @@ export class AnalyticsController {
   async getProductStats() {
     return this.service.getProductStats();
   }
+
+  @Get('referrals')
+  async getReferralStats() {
+    return this.service.getReferralStats();
+  }
+
+  @Get('subscriptions')
+  async getSubscriptionStats() {
+    return this.service.getSubscriptionStats();
+  }
+
+  @Get('retention')
+  async getBuyerRetention() {
+    return this.service.getBuyerRetention();
+  }
+
+  @Get('categories')
+  async getTopCategories(@Query('limit') limit?: string) {
+    return this.service.getTopCategories(parseInt(limit || '10'));
+  }
 }

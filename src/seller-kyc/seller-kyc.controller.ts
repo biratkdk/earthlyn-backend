@@ -3,6 +3,7 @@ import { SellerKycService } from './seller-kyc.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles, UserRole } from '../common/decorators/roles.decorator';
+import { SubmitKycDto } from './dto/submit-kyc.dto';
 
 @Controller('seller/kyc')
 @UseGuards(JwtAuthGuard)
@@ -11,8 +12,8 @@ export class SellerKycController {
   constructor(private readonly service: SellerKycService) {}
 
   @Post('submit')
-  async submitDocuments(@CurrentUser() user: any, @Body() documents: any) {
-    return this.service.submitKycDocuments(user.id, documents);
+  async submitDocuments(@CurrentUser() user: any, @Body() dto: SubmitKycDto) {
+    return this.service.submitKycDocuments(user.id, dto);
   }
 
   @Get('status')
