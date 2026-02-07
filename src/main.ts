@@ -14,10 +14,25 @@ async function bootstrap() {
     }),
   );
   
-  const corsOrigin = process.env.CORS_ORIGIN || "*";
+  const corsOrigin = (process.env.CORS_ORIGIN || "*").trim();
+  const allowAll = corsOrigin === "*";
+  const allowedOrigins = allowAll
+    ? []
+    : corsOrigin
+        .split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean);
   app.enableCors({
-    origin: corsOrigin === "*" ? true : corsOrigin,
-    credentials: corsOrigin !== "*",
+    origin: allowAll
+      ? true
+      : (origin, callback) => {
+          if (!origin) {
+            return callback(null, true);
+          }
+          const isAllowed = allowedOrigins.includes(origin);
+          return callback(isAllowed ? null : new Error("Not allowed by CORS"), isAllowed);
+        },
+    credentials: !allowAll,
   });
   
   app.useGlobalPipes(
