@@ -20,6 +20,9 @@ import { MessageModerationModule } from './message-moderation/message-moderation
 import { AnalyticsModule } from './analytics/analytics.module';
 import configuration from './config/configuration';
 import { RolesGuard } from './common/guards/roles.guard';
+import { DisputesModule } from './disputes/disputes.module';
+import { ReferralsModule } from './referrals/referrals.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -59,6 +62,9 @@ import { RolesGuard } from './common/guards/roles.guard';
     DeliveryManagementModule,
     MessageModerationModule,
     AnalyticsModule,
+    DisputesModule,
+    ReferralsModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [

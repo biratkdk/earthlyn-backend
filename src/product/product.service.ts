@@ -15,12 +15,13 @@ export class ProductService {
       : { userId: data.sellerUserId };
     const seller = await this.prisma.seller.findUnique({
       where: sellerLookup,
-      select: { id: true, userId: true, kycStatus: true },
+      select: { id: true, userId: true, kycStatus: true, tier: true, isVerified: true },
     });
     if (!seller) throw new NotFoundException('Seller not found');
     if (seller.kycStatus !== 'APPROVED') {
       throw new BadRequestException('Seller KYC not approved');
     }
+    const autoApprove = seller.isVerified || ['BLOOM', 'EVERGREEN', 'EARTH_GUARDIAN'].includes(seller.tier);
 
     const processingFeeRate =
       this.configService.get<number>('commerce.processingFeeRate') ?? 0.05;
@@ -47,6 +48,8 @@ export class ProductService {
           ecoScore: data.ecoScore || 0,
           category: data.category || 'other',
           processingFee,
+          approvalStatus: autoApprove ? 'APPROVED' : 'PENDING',
+          approvedAt: autoApprove ? new Date() : null,
         },
         include: { seller: true },
       });

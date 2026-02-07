@@ -1,23 +1,33 @@
-﻿import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
+import { ConfigService } from '@nestjs/config';
+import { decryptText, encryptText, getEncryptionKey } from '../common/utils/crypto';
 
 @Injectable()
 export class MessagingService {
-  constructor(private prisma: PrismaService) {}
+  private encryptionKey: Buffer;
+
+  constructor(private prisma: PrismaService, private configService: ConfigService) {
+    const rawKey = this.configService.get<string>('MESSAGE_ENCRYPTION_KEY');
+    if (!rawKey) {
+      throw new Error('MESSAGE_ENCRYPTION_KEY is not configured');
+    }
+    this.encryptionKey = getEncryptionKey(rawKey);
+  }
 
   async sendMessage(createMessageDto: CreateMessageDto) {
     return this.prisma.message.create({
       data: {
         senderId: createMessageDto.senderId,
         receiverId: createMessageDto.receiverId,
-        content: createMessageDto.content,
+        content: encryptText(createMessageDto.content, this.encryptionKey),
       },
     });
   }
 
   async getConversation(userId: string, otherUserId: string) {
-    return this.prisma.message.findMany({
+    const messages = await this.prisma.message.findMany({
       where: {
         OR: [
           { senderId: userId, receiverId: otherUserId },
@@ -26,6 +36,10 @@ export class MessagingService {
       },
       orderBy: { createdAt: 'asc' },
     });
+    return messages.map((m) => ({
+      ...m,
+      content: decryptText(m.content, this.encryptionKey),
+    }));
   }
 
   async getUserConversations(userId: string) {
@@ -45,7 +59,10 @@ export class MessagingService {
       const otherUserId =
         message.senderId === userId ? message.receiverId : message.senderId;
       if (!conversationMap.has(otherUserId)) {
-        conversationMap.set(otherUserId, message);
+        conversationMap.set(otherUserId, {
+          ...message,
+          content: decryptText(message.content, this.encryptionKey),
+        });
       }
     });
 

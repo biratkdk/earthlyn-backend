@@ -25,6 +25,8 @@ export class OrderService {
 
     const totalAmount = Number(product.price) * createOrderDto.quantity;
 
+    const autoFulfill = process.env.AUTO_FULFILL === 'true';
+
     return this.prismaService.$transaction(async (tx) => {
       const order = await tx.order.create({
         data: {
@@ -34,7 +36,7 @@ export class OrderService {
           totalAmount: totalAmount.toString(),
           paymentIntentId: createOrderDto.paymentIntentId,
           paymentStatus: 'PENDING',
-          status: 'CONFIRMED',
+          status: autoFulfill ? 'PROCESSING' : 'CONFIRMED',
         },
         include: {
           product: true,
@@ -44,7 +46,10 @@ export class OrderService {
 
       await tx.product.update({
         where: { id: product.id },
-        data: { stock: product.stock - createOrderDto.quantity },
+        data: {
+          stock: product.stock - createOrderDto.quantity,
+          deliveryStatus: autoFulfill ? 'IN_TRANSIT' : product.deliveryStatus,
+        },
       });
 
       return order;

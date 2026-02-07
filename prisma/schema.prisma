@@ -31,6 +31,11 @@ model User {
   transactions   Transaction[]
   adminAudits   AdminAudit[]
   moderations   MessageModeration[] @relation("UserModerations")
+  disputesOpened Dispute[] @relation("DisputeOpenedBy")
+  disputesAssigned Dispute[] @relation("DisputeAssignedTo")
+  referralsMade  Referral[] @relation("Referrer")
+  referralsReceived Referral[] @relation("Referee")
+  subscriptions  Subscription[]
   ecoImpacts    EcoImpact[]
   orders        Order[]
 
@@ -116,6 +121,7 @@ model Order {
   buyer             User        @relation(fields: [buyerId], references: [id], onDelete: Cascade)
   product           Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   ecoImpacts       EcoImpact[]
+  disputes         Dispute[]
 
   @@map("orders")
   @@index([buyerId])
@@ -213,6 +219,61 @@ model MessageModeration {
   @@index([flaggedById])
 }
 
+// ============ DISPUTES ============
+model Dispute {
+  id           String        @id @default(cuid())
+  orderId      String        @map("order_id")
+  openedById   String        @map("opened_by_id")
+  assignedToId String?       @map("assigned_to_id")
+  reason       String
+  status       DisputeStatus @default(OPEN)
+  resolution   String?
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  order        Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  openedBy     User          @relation("DisputeOpenedBy", fields: [openedById], references: [id], onDelete: Cascade)
+  assignedTo   User?         @relation("DisputeAssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@map("disputes")
+  @@index([orderId])
+  @@index([openedById])
+  @@index([assignedToId])
+}
+
+// ============ REFERRALS ============
+model Referral {
+  id          String   @id @default(cuid())
+  referrerId  String   @map("referrer_id")
+  refereeId   String   @map("referee_id")
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  referrer    User     @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade)
+  referee     User     @relation("Referee", fields: [refereeId], references: [id], onDelete: Cascade)
+
+  @@map("referrals")
+  @@index([referrerId])
+  @@index([refereeId])
+  @@unique([referrerId, refereeId])
+}
+
+// ============ SUBSCRIPTIONS ============
+model Subscription {
+  id          String             @id @default(cuid())
+  userId      String             @map("user_id")
+  plan        String
+  status      SubscriptionStatus @default(ACTIVE)
+  startedAt   DateTime           @default(now()) @map("started_at")
+  endsAt      DateTime?          @map("ends_at")
+  createdAt   DateTime           @default(now()) @map("created_at")
+
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+  @@index([userId])
+}
+
 // ============ ENUMS ============
 enum UserRole {
   ADMIN
@@ -279,4 +340,17 @@ enum PaymentStatus {
 enum ModerationStatus {
   FLAGGED
   RESOLVED
+}
+
+enum DisputeStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  REJECTED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
 }
