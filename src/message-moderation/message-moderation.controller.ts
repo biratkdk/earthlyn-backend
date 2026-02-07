@@ -1,16 +1,21 @@
-﻿import { Controller, Post, Get, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, UseGuards, Request } from '@nestjs/common';
 import { MessageModerationService } from './message-moderation.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { AdminGuard } from '../common/guards/admin.guard';
+import { Roles, UserRole } from '../common/decorators/roles.decorator';
 
 @Controller('messages/moderation')
-@UseGuards(JwtAuthGuard, AdminGuard)
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN, UserRole.CUSTOMER_SERVICE)
 export class MessageModerationController {
   constructor(private readonly service: MessageModerationService) {}
 
   @Post(':messageId/flag')
-  async flagMessage(@Param('messageId') messageId: string, @Body() body: { reason: string }) {
-    return this.service.flagMessage(messageId, body.reason);
+  async flagMessage(
+    @Request() req,
+    @Param('messageId') messageId: string,
+    @Body() body: { reason: string },
+  ) {
+    return this.service.flagMessage(req.user.id, messageId, body.reason);
   }
 
   @Get('flagged')

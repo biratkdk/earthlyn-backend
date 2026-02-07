@@ -61,12 +61,19 @@ export class AnalyticsService {
   }
 
   async getEcoImpactStats() {
-    const products = await this.prisma.product.count();
+    const ecoFriendlyProducts = await this.prisma.product.count({
+      where: { ecoScore: { gt: 0 } },
+    });
+    const ecoImpactAgg = await this.prisma.ecoImpact.aggregate({
+      _sum: { pointsEarned: true },
+      _count: { _all: true },
+    });
+    const totalPoints = Number(ecoImpactAgg._sum.pointsEarned || 0);
 
     return {
-      ecoFriendlyProducts: Math.floor(products * 0.3),
-      carbonSaved: products * 5,
-      treesPlanted: Math.floor(products / 2),
+      ecoFriendlyProducts,
+      carbonSaved: Math.floor(totalPoints * 0.2),
+      treesPlanted: Math.floor(totalPoints / 50),
     };
   }
 

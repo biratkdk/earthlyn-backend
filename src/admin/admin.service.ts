@@ -34,19 +34,31 @@ export class AdminService {
     });
   }
 
-  async approveSeller(sellerId: string) {
+  async approveSeller(adminId: string, sellerId: string) {
     const seller = await this.prisma.seller.findUnique({
       where: { id: sellerId },
     });
     if (!seller) throw new NotFoundException('Seller not found');
 
-    return this.prisma.seller.update({
+    const updated = await this.prisma.seller.update({
       where: { id: sellerId },
       data: { kycStatus: 'APPROVED' as any },
     });
+
+    await this.prisma.adminAudit.create({
+      data: {
+        adminId,
+        action: 'APPROVE_SELLER',
+        entityType: 'SELLER',
+        entityId: sellerId,
+        metadata: { kycStatus: 'APPROVED' },
+      },
+    });
+
+    return updated;
   }
 
-  async manageBalance(manageBalanceDto: ManageBalanceDto) {
+  async manageBalance(adminId: string, manageBalanceDto: ManageBalanceDto) {
     const user = await this.prisma.user.findUnique({
       where: { id: manageBalanceDto.userId },
     });
@@ -62,12 +74,28 @@ export class AdminService {
         amount: manageBalanceDto.amount,
         type: manageBalanceDto.type,
         description: manageBalanceDto.reason,
+        referenceType: 'ADMIN_BALANCE_ADJUSTMENT',
+        referenceId: manageBalanceDto.userId,
       },
     });
 
     await this.prisma.user.update({
       where: { id: manageBalanceDto.userId },
       data: { balance: newBalance },
+    });
+
+    await this.prisma.adminAudit.create({
+      data: {
+        adminId,
+        action: 'MANAGE_BALANCE',
+        entityType: 'USER',
+        entityId: manageBalanceDto.userId,
+        metadata: {
+          type: manageBalanceDto.type,
+          amount: manageBalanceDto.amount,
+          reason: manageBalanceDto.reason,
+        },
+      },
     });
 
     return transaction;

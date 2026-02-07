@@ -1,4 +1,4 @@
-import { IsNumber, IsArray, IsString, IsObject } from "class-validator";
+import { IsNumber, IsArray, IsString, IsObject, IsOptional } from "class-validator";
 
 export class CreatePaymentIntentDto {
   @IsNumber()
@@ -19,6 +19,10 @@ export class CreatePaymentIntentDto {
     city: string;
     zipCode: string;
   };
+
+  @IsString()
+  @IsOptional()
+  orderId?: string;
 }
 
 export class ConfirmPaymentDto {

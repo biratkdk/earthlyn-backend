@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Req, ForbiddenException } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { Roles, UserRole } from '../common/decorators/roles.decorator';
 
 @Controller('products')
 export class ProductController {
@@ -19,22 +20,40 @@ export class ProductController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.SELLER, UserRole.ADMIN)
   async create(@Body() body: any, @Req() req: any) {
-    return this.productService.create({
-      ...body,
-      sellerId: req.user.id,
-    });
+    const payload = { ...body };
+    if (req.user.role === UserRole.ADMIN && body.sellerId) {
+      payload.sellerId = body.sellerId;
+    } else {
+      payload.sellerUserId = req.user.id;
+    }
+    return this.productService.create(payload);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  async update(@Param('id') id: string, @Body() body: any) {
+  @Roles(UserRole.SELLER, UserRole.ADMIN)
+  async update(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    if (req.user.role !== UserRole.ADMIN) {
+      const product = await this.productService.findOne(id);
+      if (!product || product.seller?.userId !== req.user.id) {
+        throw new ForbiddenException('Not authorized');
+      }
+    }
     return this.productService.update(id, body);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  async delete(@Param('id') id: string) {
+  @Roles(UserRole.SELLER, UserRole.ADMIN)
+  async delete(@Req() req: any, @Param('id') id: string) {
+    if (req.user.role !== UserRole.ADMIN) {
+      const product = await this.productService.findOne(id);
+      if (!product || product.seller?.userId !== req.user.id) {
+        throw new ForbiddenException('Not authorized');
+      }
+    }
     return this.productService.delete(id);
   }
 }

@@ -10,25 +10,44 @@ export class OrderService {
   async create(buyerId: string, createOrderDto: CreateOrderDto) {
     const product = await this.prismaService.product.findUnique({
       where: { id: createOrderDto.productId },
+      include: { seller: true },
     });
 
     if (!product) {
       throw new Error('Product not found');
     }
+    if (product.approvalStatus !== 'APPROVED') {
+      throw new Error('Product is not approved');
+    }
+    if (product.stock < createOrderDto.quantity) {
+      throw new Error('Insufficient stock');
+    }
 
     const totalAmount = Number(product.price) * createOrderDto.quantity;
 
-    return this.prismaService.order.create({
-      data: {
-        buyerId,
-        productId: createOrderDto.productId,
-        quantity: createOrderDto.quantity,
-        totalAmount: totalAmount.toString(),
-      },
-      include: {
-        product: true,
-        buyer: true,
-      },
+    return this.prismaService.$transaction(async (tx) => {
+      const order = await tx.order.create({
+        data: {
+          buyerId,
+          productId: createOrderDto.productId,
+          quantity: createOrderDto.quantity,
+          totalAmount: totalAmount.toString(),
+          paymentIntentId: createOrderDto.paymentIntentId,
+          paymentStatus: 'PENDING',
+          status: 'CONFIRMED',
+        },
+        include: {
+          product: true,
+          buyer: true,
+        },
+      });
+
+      await tx.product.update({
+        where: { id: product.id },
+        data: { stock: product.stock - createOrderDto.quantity },
+      });
+
+      return order;
     });
   }
 

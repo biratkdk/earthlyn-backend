@@ -13,4 +13,8 @@
   bcrypt: {
     rounds: parseInt(process.env.BCRYPT_ROUNDS || '10'),
   },
+  commerce: {
+    processingFeeRate: parseFloat(process.env.PROCESSING_FEE_RATE || '0.05'),
+    ecoPointsPerDollar: parseFloat(process.env.ECO_POINTS_PER_DOLLAR || '1'),
+  },
 });

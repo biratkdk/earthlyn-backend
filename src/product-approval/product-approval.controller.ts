@@ -1,10 +1,11 @@
-﻿import { Controller, Get, Post, Param, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Param, UseGuards, Query } from '@nestjs/common';
 import { ProductApprovalService } from './product-approval.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { AdminGuard } from '../common/guards/admin.guard';
+import { Roles, UserRole } from '../common/decorators/roles.decorator';
 
 @Controller('admin/product-approval')
-@UseGuards(JwtAuthGuard, AdminGuard)
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
 export class ProductApprovalController {
   constructor(private readonly service: ProductApprovalService) {}
 

@@ -1,4 +1,4 @@
-﻿import {
+import {
   Controller,
   Get,
   Post,
@@ -8,20 +8,23 @@
   Delete,
   UseGuards,
   Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { BuyerService } from './buyer.service';
 import { CreateBuyerDto } from './dto/create-buyer.dto';
 import { UpdateBuyerDto } from './dto/update-buyer.dto';
-import { JwtGuard } from '../common/guards/jwt.guard';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { Roles, UserRole } from '../common/decorators/roles.decorator';
 
 @Controller('buyers')
 export class BuyerController {
   constructor(private buyerService: BuyerService) {}
 
   @Post()
-  @UseGuards(JwtGuard)
-  async create(@Body() createBuyerDto: CreateBuyerDto) {
-    return this.buyerService.create(createBuyerDto);
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.BUYER, UserRole.ADMIN)
+  async create(@Req() req: any, @Body() createBuyerDto: CreateBuyerDto) {
+    return this.buyerService.create({ ...createBuyerDto, userId: req.user.id });
   }
 
   @Get()
@@ -35,17 +38,32 @@ export class BuyerController {
   }
 
   @Put(':id')
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.BUYER, UserRole.ADMIN)
   async update(
+    @Req() req: any,
     @Param('id') id: string,
     @Body() updateBuyerDto: UpdateBuyerDto,
   ) {
+    if (req.user.role !== UserRole.ADMIN) {
+      const buyer = await this.buyerService.findOne(id);
+      if (!buyer || buyer.userId !== req.user.id) {
+        throw new ForbiddenException('Not authorized');
+      }
+    }
     return this.buyerService.update(id, updateBuyerDto);
   }
 
   @Delete(':id')
-  @UseGuards(JwtGuard)
-  async remove(@Param('id') id: string) {
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.BUYER, UserRole.ADMIN)
+  async remove(@Req() req: any, @Param('id') id: string) {
+    if (req.user.role !== UserRole.ADMIN) {
+      const buyer = await this.buyerService.findOne(id);
+      if (!buyer || buyer.userId !== req.user.id) {
+        throw new ForbiddenException('Not authorized');
+      }
+    }
     return this.buyerService.remove(id);
   }
 }

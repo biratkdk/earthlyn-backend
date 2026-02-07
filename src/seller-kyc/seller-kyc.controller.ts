@@ -1,10 +1,12 @@
-﻿import { Controller, Post, Get, UseGuards, Body, Param } from '@nestjs/common';
+import { Controller, Post, Get, UseGuards, Body, Param } from '@nestjs/common';
 import { SellerKycService } from './seller-kyc.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles, UserRole } from '../common/decorators/roles.decorator';
 
 @Controller('seller/kyc')
 @UseGuards(JwtAuthGuard)
+@Roles(UserRole.SELLER, UserRole.ADMIN)
 export class SellerKycController {
   constructor(private readonly service: SellerKycService) {}
 
@@ -21,6 +23,7 @@ export class SellerKycController {
 
 @Controller('admin/kyc')
 @UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
 export class KycAdminController {
   constructor(private readonly service: SellerKycService) {}
 

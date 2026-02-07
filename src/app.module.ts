@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { DatabaseModule } from './database/database.module';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
@@ -17,6 +19,7 @@ import { DeliveryManagementModule } from './delivery-management/delivery-managem
 import { MessageModerationModule } from './message-moderation/message-moderation.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import configuration from './config/configuration';
+import { RolesGuard } from './common/guards/roles.guard';
 
 @Module({
   imports: [
@@ -24,6 +27,13 @@ import configuration from './config/configuration';
       isGlobal: true,
       load: [configuration],
       envFilePath: '.env',
+    }),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        ttl: Number(configService.get('THROTTLE_TTL') || 60),
+        limit: Number(configService.get('THROTTLE_LIMIT') || 10),
+      }),
     }),
     JwtModule.registerAsync({
       global: true,
@@ -51,5 +61,9 @@ import configuration from './config/configuration';
     AnalyticsModule,
   ],
   controllers: [AppController],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+  ],
 })
 export class AppModule {}

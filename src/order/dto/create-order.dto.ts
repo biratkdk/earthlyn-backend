@@ -1,13 +1,14 @@
-﻿import { IsString, IsInt, Min } from 'class-validator';
+import { IsString, IsInt, Min, IsOptional } from 'class-validator';
 
 export class CreateOrderDto {
-  @IsString()
-  buyerId: string;
-
   @IsString()
   productId: string;
 
   @IsInt()
   @Min(1)
   quantity: number;
+
+  @IsString()
+  @IsOptional()
+  paymentIntentId?: string;
 }

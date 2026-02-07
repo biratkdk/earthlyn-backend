@@ -29,6 +29,12 @@ export class AuthService {
     if (!normalizedRole || !this.VALID_ROLES.includes(normalizedRole)) {
       throw new BadRequestException('Invalid role. Must be one of: ADMIN, SELLER, BUYER, CUSTOMER_SERVICE');
     }
+    if (
+      (normalizedRole === 'ADMIN' || normalizedRole === 'CUSTOMER_SERVICE') &&
+      process.env.ALLOW_ADMIN_REGISTRATION !== 'true'
+    ) {
+      throw new BadRequestException('Role not allowed for public registration');
+    }
 
     const hashedPassword = await bcrypt.hash(
       registerDto.password,
@@ -67,6 +73,9 @@ export class AuthService {
     });
     if (!user || !(await bcrypt.compare(loginDto.password, user.passwordHash))) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+    if (!user.isActive) {
+      throw new UnauthorizedException('Account is inactive');
     }
 
     const accessToken = this.jwtService.sign({

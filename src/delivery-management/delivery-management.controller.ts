@@ -1,11 +1,13 @@
-﻿import { Controller, Get, Post, Param, Body, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, UseGuards, Query } from '@nestjs/common';
 import { DeliveryManagementService } from './delivery-management.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { DeliveryStatus } from '@prisma/client';
+import { Roles, UserRole } from '../common/decorators/roles.decorator';
 
 @Controller('seller/delivery')
 @UseGuards(JwtAuthGuard)
+@Roles(UserRole.SELLER, UserRole.ADMIN)
 export class DeliveryManagementController {
   constructor(private readonly service: DeliveryManagementService) {}
 
@@ -17,11 +19,12 @@ export class DeliveryManagementController {
 
   @Post(':orderId/update-status')
   async updateStatus(
+    @CurrentUser() user: any,
     @Param('orderId') orderId: string,
     @Body() body: { status: string; trackingId?: string },
   ) {
     const status = DeliveryStatus[body.status as keyof typeof DeliveryStatus];
-    return this.service.updateDeliveryStatus(orderId, status, body.trackingId);
+    return this.service.updateDeliveryStatus(orderId, status, body.trackingId, user.id);
   }
 
   @Get('stats')
