@@ -5,7 +5,7 @@ import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { logger: false });
+  const app = await NestFactory.create(AppModule);
   app.use(
     json({
       verify: (req: any, _res, buf) => {
@@ -55,11 +55,19 @@ async function bootstrap() {
   
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  console.log(`? API running on port ${port}`);
-  console.log(`? Swagger docs at http://localhost:${port}/api/docs`);
+  console.log(`API running on port ${port}`);
+  console.log(`Swagger docs at http://localhost:${port}/api/docs`);
 }
 
-bootstrap().catch(err => {
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+});
+
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled Rejection:", reason);
+});
+
+bootstrap().catch((err) => {
   console.error("Failed to start:", err);
   process.exit(1);
 });
