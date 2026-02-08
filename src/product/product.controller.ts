@@ -1,5 +1,6 @@
-﻿import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Req, ForbiddenException, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Req, ForbiddenException, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { Multer } from 'multer';
 import { ProductService } from './product.service';
 import { FileUploadService } from '../common/services/file-upload.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -42,7 +43,7 @@ export class ProductController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(
     @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: Multer.File,
     @Req() req: any,
   ) {
     // Verify ownership

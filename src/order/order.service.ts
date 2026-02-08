@@ -1,4 +1,4 @@
-﻿import { Injectable, BadRequestException, NotFoundException, Logger } from "@nestjs/common";
+import { Injectable, BadRequestException, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "../database/prisma.service";
 import { QueueService } from "../common/services/queue.service";
 import { CreateOrderDto } from "./dto/create-order.dto";
@@ -179,7 +179,7 @@ export class OrderService {
     }
 
     // Check if order can be cancelled
-    if (![''PENDING'', ''CONFIRMED''].includes(order.status)) {
+    if (!["PENDING", "CONFIRMED"].includes(order.status)) {
       throw new BadRequestException(
         `Cannot cancel order with status ${order.status}.`
       );

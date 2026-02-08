@@ -1,4 +1,4 @@
-﻿import { Module } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
@@ -20,6 +20,9 @@ import { SellerKycModule } from "./seller-kyc/seller-kyc.module";
 import { DeliveryManagementModule } from "./delivery-management/delivery-management.module";
 import { MessageModerationModule } from "./message-moderation/message-moderation.module";
 import { AnalyticsModule } from "./analytics/analytics.module";
+import { PrivacyModule } from "./privacy/privacy.module";
+import { CustomerServiceModule } from "./customer-service/customer-service.module";
+import { WebSocketModule } from "./websocket/websocket.module";
 import configuration from "./config/configuration";
 import { getBullConfig } from "./config/bull.config";
 import { RolesGuard } from "./common/guards/roles.guard";
@@ -81,6 +84,9 @@ import { FulfillmentModule } from "./fulfillment/fulfillment.module";
     DeliveryManagementModule,
     MessageModerationModule,
     AnalyticsModule,
+    PrivacyModule,
+    CustomerServiceModule,
+    WebSocketModule,
     DisputesModule,
     ReferralsModule,
     SubscriptionsModule,
