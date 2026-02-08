@@ -1,4 +1,4 @@
-{
+﻿{
     "name": "earthlyn-backend",
     "version": "1.0.0",
     "description": "EARTHLYN E-commerce Backend API",
@@ -16,9 +16,7 @@
         "prisma:generate": "prisma generate",
         "prisma:migrate": "prisma migrate dev",
         "prisma:studio": "prisma studio",
-        "prisma:seed": "ts-node prisma/seed.ts",
-        "postinstall": null
-    },
+        "prisma:seed": "ts-node prisma/seed.ts"},
     "dependencies": {
         "@nestjs/bull": "^10.0.1",
         "@nestjs/common": "^10.3.0",
