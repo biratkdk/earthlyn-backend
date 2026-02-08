@@ -1,34 +1,18 @@
-import { IsNumber, IsArray, IsString, IsObject, IsOptional } from "class-validator";
+import { IsNumber, IsArray, IsObject, IsString, IsOptional, Min } from 'class-validator';
 
 export class CreatePaymentIntentDto {
   @IsNumber()
+  @Min(0.01)
   amount: number;
 
   @IsArray()
-  items: Array<{
-    productId: string;
-    quantity: number;
-    price: number;
-    name: string;
-  }>;
+  @IsOptional()
+  items?: any[];
 
   @IsObject()
-  shippingAddress: {
-    fullName: string;
-    address: string;
-    city: string;
-    zipCode: string;
-  };
+  shippingAddress: any;
 
   @IsString()
   @IsOptional()
   orderId?: string;
-}
-
-export class ConfirmPaymentDto {
-  @IsString()
-  paymentIntentId: string;
-
-  @IsString()
-  paymentMethodId: string;
 }

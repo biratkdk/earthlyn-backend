@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Query, Request } from '@nestjs/common';
+﻿import { Controller, Get, Post, Body, UseGuards, Query, Request, Put, Param } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { ManageBalanceDto } from './dto/manage-balance.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -29,6 +29,21 @@ export class AdminController {
 
   @Post('manage-balance')
   async manageBalance(@Request() req, @Body() manageBalanceDto: ManageBalanceDto) {
+    return this.adminService.manageBalance(req.user.id, manageBalanceDto);
+  }
+
+  @Put('users/:userId/balance')
+  async updateUserBalance(
+    @Request() req,
+    @Param('userId') userId: string,
+    @Body() body: { type: 'CREDIT' | 'DEBIT'; amount: number; reason?: string },
+  ) {
+    const manageBalanceDto: ManageBalanceDto = {
+      userId,
+      type: body.type,
+      amount: body.amount,
+      reason: body.reason || `Manual balance adjustment: ${body.type}`,
+    };
     return this.adminService.manageBalance(req.user.id, manageBalanceDto);
   }
 }

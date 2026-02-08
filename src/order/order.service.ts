@@ -1,7 +1,7 @@
-﻿import { Injectable } from '@nestjs/common';
+﻿import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus, TransactionType } from '@prisma/client';
 
 @Injectable()
 export class OrderService {
@@ -121,6 +121,93 @@ export class OrderService {
         buyer: true,
       },
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  // Cancel an order - refund payment, restore inventory, create refund transaction
+  async cancelOrder(orderId: string, userId: string): Promise<any> {
+    const order = await this.prismaService.order.findUnique({
+      where: { id: orderId },
+      include: {
+        product: true,
+        buyer: true,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Verify authorization - only buyer or admin can cancel
+    if (order.buyerId !== userId) {
+      throw new BadRequestException('Not authorized to cancel this order');
+    }
+
+    // Check if order can be cancelled (only PENDING or CONFIRMED)
+    if (!['PENDING', 'CONFIRMED'].includes(order.status)) {
+      throw new BadRequestException(
+        `Cannot cancel order with status ${order.status}. Only PENDING and CONFIRMED orders can be cancelled.`,
+      );
+    }
+
+    return this.prismaService.$transaction(async (tx) => {
+      // Update order status to CANCELLED
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          status: 'CANCELLED' as OrderStatus,
+          updatedAt: new Date(),
+        },
+        include: {
+          product: true,
+          buyer: true,
+        },
+      });
+
+      // Restore inventory
+      await tx.product.update({
+        where: { id: order.productId },
+        data: {
+          stock: order.product.stock + order.quantity,
+        },
+      });
+
+      // Create refund transaction for buyer
+      const refundAmount = Number(order.totalAmount);
+      await tx.transaction.create({
+        data: {
+          userId: order.buyerId,
+          type: 'CREDIT' as TransactionType,
+          amount: refundAmount,
+          description: `Refund for cancelled order ${orderId}`,
+          referenceType: 'ORDER_CANCELLATION',
+          referenceId: orderId,
+        },
+      });
+
+      // Update user balance with refund
+      const buyerUser = await tx.user.findUnique({
+        where: { id: order.buyerId },
+        select: { balance: true },
+      });
+
+      if (buyerUser) {
+        await tx.user.update({
+          where: { id: order.buyerId },
+          data: {
+            balance: Number(buyerUser.balance) + refundAmount,
+          },
+        });
+      }
+
+      // TODO: Process Stripe refund if paymentIntentId exists
+      // This would require Stripe API integration
+      if (order.paymentIntentId) {
+        // await this.stripeService.refundPayment(order.paymentIntentId);
+        console.log(`[STRIPE REFUND PENDING] Order ${orderId}, Intent: ${order.paymentIntentId}`);
+      }
+
+      return updatedOrder;
     });
   }
 }

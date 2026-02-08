@@ -57,6 +57,13 @@ export class OrderController {
     return this.orderService.findByStatus(status);
   }
 
+  @Post(':id/cancel')
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.BUYER, UserRole.ADMIN)
+  async cancelOrder(@Request() req, @Param('id') orderId: string) {
+    return this.orderService.cancelOrder(orderId, req.user.id);
+  }
+
   // Generic :id route comes last
   @Get(':id')
   @UseGuards(JwtAuthGuard)

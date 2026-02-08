@@ -1,6 +1,6 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+﻿import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { DeliveryStatus, SellerTier } from '@prisma/client';
+import { DeliveryStatus, SellerTier, TransactionType } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -35,6 +35,10 @@ export class DeliveryManagementService {
     if (totalSales >= 5000) return 'GROWTH';
     if (totalSales >= 1000) return 'SPROUT';
     return 'SEED';
+  }
+
+  private calculateRewardPoints(totalAmount: number): number {
+    return Math.floor(totalAmount * 0.05);
   }
 
   async getOrdersByStatus(userId: string, status?: DeliveryStatus) {
@@ -126,7 +130,7 @@ export class DeliveryManagementService {
         data: {
           userId: seller.userId,
           amount: profitAmount,
-          type: 'CREDIT',
+          type: 'CREDIT' as TransactionType,
           description: `Profit credit for order ${order.id}`,
           referenceType: 'ORDER_DELIVERY',
           referenceId: order.id,
@@ -181,6 +185,38 @@ export class DeliveryManagementService {
           where: { id: order.buyerId },
           data: { ecoPoints: buyerUser.ecoPoints + ecoPoints },
         });
+      }
+
+      // Credit buyer with reward points (5% of order total)
+      const rewardPoints = this.calculateRewardPoints(totalAmount);
+      const existingReward = await tx.transaction.findFirst({
+        where: {
+          referenceType: 'ORDER_REWARD_POINTS',
+          referenceId: order.id,
+          userId: order.buyerId,
+        },
+      });
+      if (!existingReward) {
+        await tx.transaction.create({
+          data: {
+            userId: order.buyerId,
+            amount: rewardPoints,
+            type: 'CREDIT' as TransactionType,
+            description: `Reward points (5% of order value) for order ${order.id}`,
+            referenceType: 'ORDER_REWARD_POINTS',
+            referenceId: order.id,
+          },
+        });
+
+        const buyer = await tx.buyer.findUnique({
+          where: { userId: order.buyerId },
+        });
+        if (buyer) {
+          await tx.buyer.update({
+            where: { id: buyer.id },
+            data: { rewardPoints: buyer.rewardPoints + rewardPoints },
+          });
+        }
       }
 
       return updatedOrder;
