@@ -1,11 +1,17 @@
-﻿import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { OrderStatus, TransactionType } from '@prisma/client';
+﻿import { Injectable, BadRequestException, NotFoundException, Logger } from "@nestjs/common";
+import { PrismaService } from "../database/prisma.service";
+import { QueueService } from "../common/services/queue.service";
+import { CreateOrderDto } from "./dto/create-order.dto";
+import { OrderStatus, TransactionType } from "@prisma/client";
 
 @Injectable()
 export class OrderService {
-  constructor(private prismaService: PrismaService) {}
+  private readonly logger = new Logger(OrderService.name);
+
+  constructor(
+    private prismaService: PrismaService,
+    private queueService: QueueService
+  ) {}
 
   async create(buyerId: string, createOrderDto: CreateOrderDto) {
     const product = await this.prismaService.product.findUnique({
@@ -14,29 +20,28 @@ export class OrderService {
     });
 
     if (!product) {
-      throw new Error('Product not found');
+      throw new Error("Product not found");
     }
-    if (product.approvalStatus !== 'APPROVED') {
-      throw new Error('Product is not approved');
+    if (product.approvalStatus !== "APPROVED") {
+      throw new Error("Product is not approved");
     }
     if (product.stock < createOrderDto.quantity) {
-      throw new Error('Insufficient stock');
+      throw new Error("Insufficient stock");
     }
 
     const totalAmount = Number(product.price) * createOrderDto.quantity;
+    const autoFulfill = process.env.AUTO_FULFILL === "true";
 
-    const autoFulfill = process.env.AUTO_FULFILL === 'true';
-
-    return this.prismaService.$transaction(async (tx) => {
-      const order = await tx.order.create({
+    const order = await this.prismaService.$transaction(async (tx) => {
+      const newOrder = await tx.order.create({
         data: {
           buyerId,
           productId: createOrderDto.productId,
           quantity: createOrderDto.quantity,
           totalAmount: totalAmount.toString(),
           paymentIntentId: createOrderDto.paymentIntentId,
-          paymentStatus: 'PENDING',
-          status: autoFulfill ? 'PROCESSING' : 'CONFIRMED',
+          paymentStatus: "PENDING",
+          status: autoFulfill ? "PROCESSING" : "CONFIRMED",
         },
         include: {
           product: true,
@@ -48,12 +53,42 @@ export class OrderService {
         where: { id: product.id },
         data: {
           stock: product.stock - createOrderDto.quantity,
-          deliveryStatus: autoFulfill ? 'IN_TRANSIT' : product.deliveryStatus,
+          deliveryStatus: autoFulfill ? "IN_TRANSIT" : product.deliveryStatus,
         },
       });
 
-      return order;
+      return newOrder;
     });
+
+    // Queue order confirmation email asynchronously
+    try {
+      await this.queueService.addOrderConfirmationEmail(
+        order.buyer.email,
+        order.id,
+        order.product.name,
+        order.quantity,
+        Number(order.totalAmount)
+      );
+      this.logger.log(`Order confirmation email queued for order ${order.id}`);
+    } catch (error) {
+      this.logger.error(`Failed to queue order confirmation email: ${error.message}`);
+      // Don't throw - order was created successfully, email failure shouldn''t fail the order
+    }
+
+    // Queue order status notification
+    try {
+      const status = autoFulfill ? "PROCESSING" : "CONFIRMED";
+      await this.queueService.addOrderStatusNotification(
+        buyerId,
+        order.id,
+        status
+      );
+      this.logger.log(`Order status notification queued for order ${order.id}`);
+    } catch (error) {
+      this.logger.error(`Failed to queue order notification: ${error.message}`);
+    }
+
+    return order;
   }
 
   async findAll(filters?: { buyerId?: string; status?: OrderStatus }) {
@@ -63,7 +98,7 @@ export class OrderService {
         product: true,
         buyer: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 
@@ -109,7 +144,7 @@ export class OrderService {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 
@@ -120,7 +155,7 @@ export class OrderService {
         product: true,
         buyer: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 
@@ -135,27 +170,26 @@ export class OrderService {
     });
 
     if (!order) {
-      throw new NotFoundException('Order not found');
+      throw new NotFoundException("Order not found");
     }
 
-    // Verify authorization - only buyer or admin can cancel
+    // Verify authorization
     if (order.buyerId !== userId) {
-      throw new BadRequestException('Not authorized to cancel this order');
+      throw new BadRequestException("Not authorized to cancel this order");
     }
 
-    // Check if order can be cancelled (only PENDING or CONFIRMED)
-    if (!['PENDING', 'CONFIRMED'].includes(order.status)) {
+    // Check if order can be cancelled
+    if (![''PENDING'', ''CONFIRMED''].includes(order.status)) {
       throw new BadRequestException(
-        `Cannot cancel order with status ${order.status}. Only PENDING and CONFIRMED orders can be cancelled.`,
+        `Cannot cancel order with status ${order.status}.`
       );
     }
 
-    return this.prismaService.$transaction(async (tx) => {
-      // Update order status to CANCELLED
-      const updatedOrder = await tx.order.update({
+    const updatedOrder = await this.prismaService.$transaction(async (tx) => {
+      const cancelled = await tx.order.update({
         where: { id: orderId },
         data: {
-          status: 'CANCELLED' as OrderStatus,
+          status: "CANCELLED" as OrderStatus,
           updatedAt: new Date(),
         },
         include: {
@@ -172,20 +206,20 @@ export class OrderService {
         },
       });
 
-      // Create refund transaction for buyer
+      // Create refund transaction
       const refundAmount = Number(order.totalAmount);
       await tx.transaction.create({
         data: {
           userId: order.buyerId,
-          type: 'CREDIT' as TransactionType,
+          type: "CREDIT" as TransactionType,
           amount: refundAmount,
           description: `Refund for cancelled order ${orderId}`,
-          referenceType: 'ORDER_CANCELLATION',
+          referenceType: "ORDER_CANCELLATION",
           referenceId: orderId,
         },
       });
 
-      // Update user balance with refund
+      // Update user balance
       const buyerUser = await tx.user.findUnique({
         where: { id: order.buyerId },
         select: { balance: true },
@@ -200,14 +234,21 @@ export class OrderService {
         });
       }
 
-      // TODO: Process Stripe refund if paymentIntentId exists
-      // This would require Stripe API integration
-      if (order.paymentIntentId) {
-        // await this.stripeService.refundPayment(order.paymentIntentId);
-        console.log(`[STRIPE REFUND PENDING] Order ${orderId}, Intent: ${order.paymentIntentId}`);
-      }
-
-      return updatedOrder;
+      return cancelled;
     });
+
+    // Queue refund email notification asynchronously
+    try {
+      await this.queueService.addRefundEmail(
+        order.buyer.email,
+        orderId,
+        Number(order.totalAmount)
+      );
+      this.logger.log(`Refund email queued for cancelled order ${orderId}`);
+    } catch (error) {
+      this.logger.error(`Failed to queue refund email: ${error.message}`);
+    }
+
+    return updatedOrder;
   }
 }
