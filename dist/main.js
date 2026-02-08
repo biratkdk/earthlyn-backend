@@ -45,17 +45,16 @@ const common_1 = __webpack_require__(2);
 const core_1 = __webpack_require__(1);
 const config_1 = __webpack_require__(6);
 const jwt_1 = __webpack_require__(7);
-const bull_1 = __webpack_require__(8);
-const throttler_1 = __webpack_require__(9);
-const schedule_1 = __webpack_require__(10);
-const database_module_1 = __webpack_require__(11);
-const app_controller_1 = __webpack_require__(14);
-const auth_module_1 = __webpack_require__(15);
-const seller_module_1 = __webpack_require__(27);
-const buyer_module_1 = __webpack_require__(32);
-const admin_module_1 = __webpack_require__(37);
-const messaging_module_1 = __webpack_require__(42);
-const order_module_1 = __webpack_require__(48);
+const throttler_1 = __webpack_require__(8);
+const schedule_1 = __webpack_require__(9);
+const database_module_1 = __webpack_require__(10);
+const app_controller_1 = __webpack_require__(13);
+const auth_module_1 = __webpack_require__(14);
+const seller_module_1 = __webpack_require__(26);
+const buyer_module_1 = __webpack_require__(31);
+const admin_module_1 = __webpack_require__(36);
+const messaging_module_1 = __webpack_require__(41);
+const order_module_1 = __webpack_require__(47);
 const payment_module_1 = __webpack_require__(54);
 const product_module_1 = __webpack_require__(59);
 const product_approval_module_1 = __webpack_require__(66);
@@ -67,12 +66,11 @@ const privacy_module_1 = __webpack_require__(83);
 const customer_service_module_1 = __webpack_require__(88);
 const websocket_module_1 = __webpack_require__(92);
 const configuration_1 = __importDefault(__webpack_require__(97));
-const bull_config_1 = __webpack_require__(98);
-const roles_guard_1 = __webpack_require__(41);
-const disputes_module_1 = __webpack_require__(99);
-const referrals_module_1 = __webpack_require__(104);
-const subscriptions_module_1 = __webpack_require__(108);
-const fulfillment_module_1 = __webpack_require__(112);
+const roles_guard_1 = __webpack_require__(40);
+const disputes_module_1 = __webpack_require__(98);
+const referrals_module_1 = __webpack_require__(103);
+const subscriptions_module_1 = __webpack_require__(107);
+const fulfillment_module_1 = __webpack_require__(111);
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -106,11 +104,6 @@ exports.AppModule = AppModule = __decorate([
                 }),
                 inject: [config_1.ConfigService],
             }),
-            bull_1.BullModule.forRootAsync({
-                inject: [config_1.ConfigService],
-                useFactory: (configService) => (0, bull_config_1.getBullConfig)(configService),
-            }),
-            bull_1.BullModule.registerQueue({ name: "email" }, { name: "notifications" }),
             database_module_1.DatabaseModule,
             auth_module_1.AuthModule,
             seller_module_1.SellerModule,
@@ -158,19 +151,39 @@ module.exports = require("@nestjs/jwt");
 /* 8 */
 /***/ ((module) => {
 
-module.exports = require("@nestjs/bull");
+module.exports = require("@nestjs/throttler");
 
 /***/ }),
 /* 9 */
 /***/ ((module) => {
 
-module.exports = require("@nestjs/throttler");
+module.exports = require("@nestjs/schedule");
 
 /***/ }),
 /* 10 */
-/***/ ((module) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
-module.exports = require("@nestjs/schedule");
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DatabaseModule = void 0;
+const common_1 = __webpack_require__(2);
+const prisma_service_1 = __webpack_require__(11);
+let DatabaseModule = class DatabaseModule {
+};
+exports.DatabaseModule = DatabaseModule;
+exports.DatabaseModule = DatabaseModule = __decorate([
+    (0, common_1.Module)({
+        providers: [prisma_service_1.PrismaService],
+        exports: [prisma_service_1.PrismaService],
+    })
+], DatabaseModule);
+
 
 /***/ }),
 /* 11 */
@@ -184,35 +197,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.DatabaseModule = void 0;
-const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
-let DatabaseModule = class DatabaseModule {
-};
-exports.DatabaseModule = DatabaseModule;
-exports.DatabaseModule = DatabaseModule = __decorate([
-    (0, common_1.Module)({
-        providers: [prisma_service_1.PrismaService],
-        exports: [prisma_service_1.PrismaService],
-    })
-], DatabaseModule);
-
-
-/***/ }),
-/* 12 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PrismaService = void 0;
 const common_1 = __webpack_require__(2);
-const client_1 = __webpack_require__(13);
+const client_1 = __webpack_require__(12);
 let PrismaService = class PrismaService extends client_1.PrismaClient {
     async onModuleInit() {
         await this.$connect();
@@ -228,13 +215,13 @@ exports.PrismaService = PrismaService = __decorate([
 
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ ((module) => {
 
 module.exports = require("@prisma/client");
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -290,7 +277,7 @@ exports.AppController = AppController = __decorate([
 
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -303,11 +290,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthModule = void 0;
 const common_1 = __webpack_require__(2);
-const passport_1 = __webpack_require__(16);
-const auth_service_1 = __webpack_require__(17);
-const auth_controller_1 = __webpack_require__(19);
-const jwt_strategy_1 = __webpack_require__(25);
-const database_module_1 = __webpack_require__(11);
+const passport_1 = __webpack_require__(15);
+const auth_service_1 = __webpack_require__(16);
+const auth_controller_1 = __webpack_require__(18);
+const jwt_strategy_1 = __webpack_require__(24);
+const database_module_1 = __webpack_require__(10);
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -322,13 +309,13 @@ exports.AuthModule = AuthModule = __decorate([
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/passport");
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -379,9 +366,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthService = void 0;
 const common_1 = __webpack_require__(2);
 const jwt_1 = __webpack_require__(7);
-const bcrypt = __importStar(__webpack_require__(18));
+const bcrypt = __importStar(__webpack_require__(17));
 const config_1 = __webpack_require__(6);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 let AuthService = class AuthService {
     constructor(prismaService, jwtService, configService) {
         this.prismaService = prismaService;
@@ -466,13 +453,13 @@ exports.AuthService = AuthService = __decorate([
 
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ ((module) => {
 
 module.exports = require("bcrypt");
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -492,11 +479,11 @@ var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthController = void 0;
 const common_1 = __webpack_require__(2);
-const auth_service_1 = __webpack_require__(17);
-const login_dto_1 = __webpack_require__(20);
-const register_dto_1 = __webpack_require__(22);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const current_user_decorator_1 = __webpack_require__(24);
+const auth_service_1 = __webpack_require__(16);
+const login_dto_1 = __webpack_require__(19);
+const register_dto_1 = __webpack_require__(21);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const current_user_decorator_1 = __webpack_require__(23);
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -547,7 +534,7 @@ exports.AuthController = AuthController = __decorate([
 
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -562,7 +549,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LoginDto = void 0;
-const class_validator_1 = __webpack_require__(21);
+const class_validator_1 = __webpack_require__(20);
 class LoginDto {
 }
 exports.LoginDto = LoginDto;
@@ -578,13 +565,13 @@ __decorate([
 
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ ((module) => {
 
 module.exports = require("class-validator");
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -599,7 +586,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RegisterDto = void 0;
-const class_validator_1 = __webpack_require__(21);
+const class_validator_1 = __webpack_require__(20);
 class RegisterDto {
 }
 exports.RegisterDto = RegisterDto;
@@ -624,7 +611,7 @@ __decorate([
 
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -637,7 +624,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JwtAuthGuard = void 0;
 const common_1 = __webpack_require__(2);
-const passport_1 = __webpack_require__(16);
+const passport_1 = __webpack_require__(15);
 let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
     canActivate(context) {
         return super.canActivate(context);
@@ -656,7 +643,7 @@ exports.JwtAuthGuard = JwtAuthGuard = __decorate([
 
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -670,7 +657,7 @@ exports.CurrentUser = (0, common_1.createParamDecorator)((data, ctx) => {
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -687,8 +674,8 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JwtStrategy = void 0;
 const common_1 = __webpack_require__(2);
-const passport_1 = __webpack_require__(16);
-const passport_jwt_1 = __webpack_require__(26);
+const passport_1 = __webpack_require__(15);
+const passport_jwt_1 = __webpack_require__(25);
 const config_1 = __webpack_require__(6);
 let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy) {
     constructor(configService) { super({ jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(), ignoreExpiration: false, secretOrKey: configService.get('jwt.secret'), }); }
@@ -702,13 +689,13 @@ exports.JwtStrategy = JwtStrategy = __decorate([
 
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ ((module) => {
 
 module.exports = require("passport-jwt");
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -721,9 +708,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SellerModule = void 0;
 const common_1 = __webpack_require__(2);
-const seller_service_1 = __webpack_require__(28);
-const seller_controller_1 = __webpack_require__(29);
-const database_module_1 = __webpack_require__(11);
+const seller_service_1 = __webpack_require__(27);
+const seller_controller_1 = __webpack_require__(28);
+const database_module_1 = __webpack_require__(10);
 let SellerModule = class SellerModule {
 };
 exports.SellerModule = SellerModule;
@@ -737,7 +724,7 @@ exports.SellerModule = SellerModule = __decorate([
 
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -754,7 +741,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SellerService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 let SellerService = class SellerService {
     constructor(prismaService) {
         this.prismaService = prismaService;
@@ -866,7 +853,7 @@ exports.SellerService = SellerService = __decorate([
 
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -886,10 +873,10 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SellerController = void 0;
 const common_1 = __webpack_require__(2);
-const seller_service_1 = __webpack_require__(28);
-const create_seller_dto_1 = __webpack_require__(30);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const roles_decorator_1 = __webpack_require__(31);
+const seller_service_1 = __webpack_require__(27);
+const create_seller_dto_1 = __webpack_require__(29);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_decorator_1 = __webpack_require__(30);
 let SellerController = class SellerController {
     constructor(sellerService) {
         this.sellerService = sellerService;
@@ -1019,7 +1006,7 @@ exports.SellerController = SellerController = __decorate([
 
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1034,7 +1021,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreateSellerDto = void 0;
-const class_validator_1 = __webpack_require__(21);
+const class_validator_1 = __webpack_require__(20);
 class CreateSellerDto {
 }
 exports.CreateSellerDto = CreateSellerDto;
@@ -1055,7 +1042,7 @@ __decorate([
 
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -1074,7 +1061,7 @@ exports.Roles = Roles;
 
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1087,9 +1074,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BuyerModule = void 0;
 const common_1 = __webpack_require__(2);
-const buyer_service_1 = __webpack_require__(33);
-const buyer_controller_1 = __webpack_require__(34);
-const database_module_1 = __webpack_require__(11);
+const buyer_service_1 = __webpack_require__(32);
+const buyer_controller_1 = __webpack_require__(33);
+const database_module_1 = __webpack_require__(10);
 let BuyerModule = class BuyerModule {
 };
 exports.BuyerModule = BuyerModule;
@@ -1103,7 +1090,7 @@ exports.BuyerModule = BuyerModule = __decorate([
 
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1120,7 +1107,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BuyerService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 let BuyerService = class BuyerService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -1258,7 +1245,7 @@ exports.BuyerService = BuyerService = __decorate([
 
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1278,11 +1265,11 @@ var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BuyerController = void 0;
 const common_1 = __webpack_require__(2);
-const buyer_service_1 = __webpack_require__(33);
-const create_buyer_dto_1 = __webpack_require__(35);
-const update_buyer_dto_1 = __webpack_require__(36);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const roles_decorator_1 = __webpack_require__(31);
+const buyer_service_1 = __webpack_require__(32);
+const create_buyer_dto_1 = __webpack_require__(34);
+const update_buyer_dto_1 = __webpack_require__(35);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_decorator_1 = __webpack_require__(30);
 let BuyerController = class BuyerController {
     constructor(buyerService) {
         this.buyerService = buyerService;
@@ -1421,7 +1408,7 @@ exports.BuyerController = BuyerController = __decorate([
 
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1436,7 +1423,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreateBuyerDto = void 0;
-const class_validator_1 = __webpack_require__(21);
+const class_validator_1 = __webpack_require__(20);
 class CreateBuyerDto {
 }
 exports.CreateBuyerDto = CreateBuyerDto;
@@ -1447,7 +1434,7 @@ __decorate([
 
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1462,7 +1449,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpdateBuyerDto = void 0;
-const class_validator_1 = __webpack_require__(21);
+const class_validator_1 = __webpack_require__(20);
 class UpdateBuyerDto {
 }
 exports.UpdateBuyerDto = UpdateBuyerDto;
@@ -1484,7 +1471,7 @@ __decorate([
 
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1497,9 +1484,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AdminModule = void 0;
 const common_1 = __webpack_require__(2);
-const admin_service_1 = __webpack_require__(38);
-const admin_controller_1 = __webpack_require__(39);
-const database_module_1 = __webpack_require__(11);
+const admin_service_1 = __webpack_require__(37);
+const admin_controller_1 = __webpack_require__(38);
+const database_module_1 = __webpack_require__(10);
 let AdminModule = class AdminModule {
 };
 exports.AdminModule = AdminModule;
@@ -1513,7 +1500,7 @@ exports.AdminModule = AdminModule = __decorate([
 
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1530,7 +1517,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AdminService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 let AdminService = class AdminService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -1627,7 +1614,7 @@ exports.AdminService = AdminService = __decorate([
 
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1647,12 +1634,12 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AdminController = void 0;
 const common_1 = __webpack_require__(2);
-const admin_service_1 = __webpack_require__(38);
-const manage_balance_dto_1 = __webpack_require__(40);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const roles_decorator_1 = __webpack_require__(31);
-const roles_guard_1 = __webpack_require__(41);
-const roles_decorator_2 = __webpack_require__(31);
+const admin_service_1 = __webpack_require__(37);
+const manage_balance_dto_1 = __webpack_require__(39);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_decorator_1 = __webpack_require__(30);
+const roles_guard_1 = __webpack_require__(40);
+const roles_decorator_2 = __webpack_require__(30);
 let AdminController = class AdminController {
     constructor(adminService) {
         this.adminService = adminService;
@@ -1728,7 +1715,7 @@ exports.AdminController = AdminController = __decorate([
 
 
 /***/ }),
-/* 40 */
+/* 39 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1744,8 +1731,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ManageBalanceDto = void 0;
-const class_validator_1 = __webpack_require__(21);
-const client_1 = __webpack_require__(13);
+const class_validator_1 = __webpack_require__(20);
+const client_1 = __webpack_require__(12);
 class ManageBalanceDto {
 }
 exports.ManageBalanceDto = ManageBalanceDto;
@@ -1768,7 +1755,7 @@ __decorate([
 
 
 /***/ }),
-/* 41 */
+/* 40 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1817,7 +1804,7 @@ exports.RolesGuard = RolesGuard = __decorate([
 
 
 /***/ }),
-/* 42 */
+/* 41 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1830,9 +1817,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MessagingModule = void 0;
 const common_1 = __webpack_require__(2);
-const messaging_service_1 = __webpack_require__(43);
-const messaging_controller_1 = __webpack_require__(46);
-const database_module_1 = __webpack_require__(11);
+const messaging_service_1 = __webpack_require__(42);
+const messaging_controller_1 = __webpack_require__(45);
+const database_module_1 = __webpack_require__(10);
 let MessagingModule = class MessagingModule {
 };
 exports.MessagingModule = MessagingModule;
@@ -1846,7 +1833,7 @@ exports.MessagingModule = MessagingModule = __decorate([
 
 
 /***/ }),
-/* 43 */
+/* 42 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1863,9 +1850,9 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MessagingService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 const config_1 = __webpack_require__(6);
-const crypto_1 = __webpack_require__(44);
+const crypto_1 = __webpack_require__(43);
 let MessagingService = class MessagingService {
     constructor(prisma, configService) {
         this.prisma = prisma;
@@ -1938,7 +1925,7 @@ exports.MessagingService = MessagingService = __decorate([
 
 
 /***/ }),
-/* 44 */
+/* 43 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1947,7 +1934,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.decryptText = exports.encryptText = exports.getEncryptionKey = void 0;
-const crypto_1 = __importDefault(__webpack_require__(45));
+const crypto_1 = __importDefault(__webpack_require__(44));
 const ALGORITHM = 'aes-256-gcm';
 const getEncryptionKey = (rawKey) => {
     if (!rawKey || rawKey.length < 32) {
@@ -1985,13 +1972,13 @@ exports.decryptText = decryptText;
 
 
 /***/ }),
-/* 45 */
+/* 44 */
 /***/ ((module) => {
 
 module.exports = require("crypto");
 
 /***/ }),
-/* 46 */
+/* 45 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2011,9 +1998,9 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MessagingController = void 0;
 const common_1 = __webpack_require__(2);
-const messaging_service_1 = __webpack_require__(43);
-const create_message_dto_1 = __webpack_require__(47);
-const jwt_auth_guard_1 = __webpack_require__(23);
+const messaging_service_1 = __webpack_require__(42);
+const create_message_dto_1 = __webpack_require__(46);
+const jwt_auth_guard_1 = __webpack_require__(22);
 let MessagingController = class MessagingController {
     constructor(messagingService) {
         this.messagingService = messagingService;
@@ -2071,7 +2058,7 @@ exports.MessagingController = MessagingController = __decorate([
 
 
 /***/ }),
-/* 47 */
+/* 46 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2086,7 +2073,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreateMessageDto = void 0;
-const class_validator_1 = __webpack_require__(21);
+const class_validator_1 = __webpack_require__(20);
 class CreateMessageDto {
 }
 exports.CreateMessageDto = CreateMessageDto;
@@ -2107,7 +2094,7 @@ __decorate([
 
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2120,9 +2107,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OrderModule = void 0;
 const common_1 = __webpack_require__(2);
-const order_service_1 = __webpack_require__(49);
+const order_service_1 = __webpack_require__(48);
 const order_controller_1 = __webpack_require__(52);
-const database_module_1 = __webpack_require__(11);
+const database_module_1 = __webpack_require__(10);
 let OrderModule = class OrderModule {
 };
 exports.OrderModule = OrderModule;
@@ -2136,7 +2123,7 @@ exports.OrderModule = OrderModule = __decorate([
 
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2149,13 +2136,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var OrderService_1;
 var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OrderService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
-const queue_service_1 = __webpack_require__(50);
+const prisma_service_1 = __webpack_require__(11);
+const queue_service_1 = __webpack_require__(49);
 let OrderService = OrderService_1 = class OrderService {
     constructor(prismaService, queueService) {
         this.prismaService = prismaService;
@@ -2355,12 +2345,13 @@ let OrderService = OrderService_1 = class OrderService {
 exports.OrderService = OrderService;
 exports.OrderService = OrderService = OrderService_1 = __decorate([
     (0, common_1.Injectable)(),
+    __param(1, (0, common_1.Optional)()),
     __metadata("design:paramtypes", [typeof (_a = typeof prisma_service_1.PrismaService !== "undefined" && prisma_service_1.PrismaService) === "function" ? _a : Object, typeof (_b = typeof queue_service_1.QueueService !== "undefined" && queue_service_1.QueueService) === "function" ? _b : Object])
 ], OrderService);
 
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2380,7 +2371,7 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.QueueService = void 0;
 const common_1 = __webpack_require__(2);
-const bull_1 = __webpack_require__(8);
+const bull_1 = __webpack_require__(50);
 const bull_2 = __webpack_require__(51);
 let QueueService = class QueueService {
     constructor(emailQueue, notificationQueue) {
@@ -2514,6 +2505,12 @@ exports.QueueService = QueueService = __decorate([
 
 
 /***/ }),
+/* 50 */
+/***/ ((module) => {
+
+module.exports = require("@nestjs/bull");
+
+/***/ }),
 /* 51 */
 /***/ ((module) => {
 
@@ -2540,12 +2537,12 @@ var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OrderController = void 0;
 const common_1 = __webpack_require__(2);
-const order_service_1 = __webpack_require__(49);
+const order_service_1 = __webpack_require__(48);
 const create_order_dto_1 = __webpack_require__(53);
-const client_1 = __webpack_require__(13);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const roles_decorator_1 = __webpack_require__(31);
-const roles_decorator_2 = __webpack_require__(31);
+const client_1 = __webpack_require__(12);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_decorator_1 = __webpack_require__(30);
+const roles_decorator_2 = __webpack_require__(30);
 const common_2 = __webpack_require__(2);
 let OrderController = class OrderController {
     constructor(orderService) {
@@ -2698,7 +2695,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreateOrderDto = void 0;
-const class_validator_1 = __webpack_require__(21);
+const class_validator_1 = __webpack_require__(20);
 class CreateOrderDto {
 }
 exports.CreateOrderDto = CreateOrderDto;
@@ -2734,7 +2731,7 @@ exports.PaymentModule = void 0;
 const common_1 = __webpack_require__(2);
 const payment_service_1 = __webpack_require__(55);
 const payment_controller_1 = __webpack_require__(57);
-const database_module_1 = __webpack_require__(11);
+const database_module_1 = __webpack_require__(10);
 let PaymentModule = class PaymentModule {
 };
 exports.PaymentModule = PaymentModule;
@@ -2770,7 +2767,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PaymentService = void 0;
 const common_1 = __webpack_require__(2);
 const config_1 = __webpack_require__(6);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 const stripe_1 = __importDefault(__webpack_require__(56));
 let PaymentService = class PaymentService {
     constructor(configService, prismaService) {
@@ -2986,8 +2983,8 @@ exports.PaymentController = void 0;
 const common_1 = __webpack_require__(2);
 const payment_service_1 = __webpack_require__(55);
 const create_payment_intent_dto_1 = __webpack_require__(58);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const roles_decorator_1 = __webpack_require__(31);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_decorator_1 = __webpack_require__(30);
 let PaymentController = class PaymentController {
     constructor(paymentService) {
         this.paymentService = paymentService;
@@ -3077,7 +3074,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreatePaymentIntentDto = void 0;
-const class_validator_1 = __webpack_require__(21);
+const class_validator_1 = __webpack_require__(20);
 class CreatePaymentIntentDto {
 }
 exports.CreatePaymentIntentDto = CreatePaymentIntentDto;
@@ -3115,17 +3112,18 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProductModule = void 0;
+const file_upload_service_1 = __webpack_require__(60);
 const common_1 = __webpack_require__(2);
-const product_service_1 = __webpack_require__(60);
-const product_controller_1 = __webpack_require__(61);
-const database_module_1 = __webpack_require__(11);
+const product_service_1 = __webpack_require__(63);
+const product_controller_1 = __webpack_require__(64);
+const database_module_1 = __webpack_require__(10);
 let ProductModule = class ProductModule {
 };
 exports.ProductModule = ProductModule;
 exports.ProductModule = ProductModule = __decorate([
     (0, common_1.Module)({
         imports: [database_module_1.DatabaseModule],
-        providers: [product_service_1.ProductService],
+        providers: [product_service_1.ProductService, file_upload_service_1.FileUploadService],
         controllers: [product_controller_1.ProductController],
     })
 ], ProductModule);
@@ -3133,6 +3131,129 @@ exports.ProductModule = ProductModule = __decorate([
 
 /***/ }),
 /* 60 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FileUploadService = void 0;
+const common_1 = __webpack_require__(2);
+const fs_1 = __webpack_require__(61);
+const path = __importStar(__webpack_require__(62));
+const crypto = __importStar(__webpack_require__(44));
+let FileUploadService = class FileUploadService {
+    constructor() {
+        this.uploadDir = path.join(process.cwd(), "public", "uploads");
+    }
+    async onModuleInit() {
+        try {
+            await fs_1.promises.mkdir(this.uploadDir, { recursive: true });
+        }
+        catch (error) {
+            console.error("Failed to create upload directory:", error);
+        }
+    }
+    async uploadImage(file) {
+        if (!file) {
+            throw new common_1.BadRequestException("No file provided");
+        }
+        if (!file.mimetype.startsWith("image/")) {
+            throw new common_1.BadRequestException("Only image files are allowed");
+        }
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            throw new common_1.BadRequestException("File size exceeds 5MB limit");
+        }
+        try {
+            const fileName = crypto.randomBytes(16).toString("hex") + "_" + Date.now();
+            const filePath = path.join(this.uploadDir, fileName);
+            await fs_1.promises.writeFile(filePath, file.buffer);
+            return "/uploads/" + fileName;
+        }
+        catch (error) {
+            throw new common_1.BadRequestException("File upload failed");
+        }
+    }
+    async uploadVideo(file) {
+        if (!file) {
+            throw new common_1.BadRequestException("No file provided");
+        }
+        if (!file.mimetype.startsWith("video/")) {
+            throw new common_1.BadRequestException("Only video files are allowed");
+        }
+        const maxSize = 100 * 1024 * 1024;
+        if (file.size > maxSize) {
+            throw new common_1.BadRequestException("File size exceeds 100MB limit");
+        }
+        try {
+            const fileName = crypto.randomBytes(16).toString("hex") + "_" + Date.now();
+            const filePath = path.join(this.uploadDir, fileName);
+            await fs_1.promises.writeFile(filePath, file.buffer);
+            return "/uploads/" + fileName;
+        }
+        catch (error) {
+            throw new common_1.BadRequestException("File upload failed");
+        }
+    }
+};
+exports.FileUploadService = FileUploadService;
+exports.FileUploadService = FileUploadService = __decorate([
+    (0, common_1.Injectable)()
+], FileUploadService);
+
+
+/***/ }),
+/* 61 */
+/***/ ((module) => {
+
+module.exports = require("fs");
+
+/***/ }),
+/* 62 */
+/***/ ((module) => {
+
+module.exports = require("path");
+
+/***/ }),
+/* 63 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -3150,7 +3271,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProductService = void 0;
 const common_1 = __webpack_require__(2);
 const config_1 = __webpack_require__(6);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 let ProductService = class ProductService {
     constructor(prisma, configService) {
         this.prisma = prisma;
@@ -3243,7 +3364,7 @@ exports.ProductService = ProductService = __decorate([
 
 
 /***/ }),
-/* 61 */
+/* 64 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -3263,11 +3384,11 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProductController = void 0;
 const common_1 = __webpack_require__(2);
-const platform_express_1 = __webpack_require__(62);
-const product_service_1 = __webpack_require__(60);
-const file_upload_service_1 = __webpack_require__(63);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const roles_decorator_1 = __webpack_require__(31);
+const platform_express_1 = __webpack_require__(65);
+const product_service_1 = __webpack_require__(63);
+const file_upload_service_1 = __webpack_require__(60);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_decorator_1 = __webpack_require__(30);
 let ProductController = class ProductController {
     constructor(productService, fileUploadService) {
         this.productService = productService;
@@ -3385,133 +3506,10 @@ exports.ProductController = ProductController = __decorate([
 
 
 /***/ }),
-/* 62 */
-/***/ ((module) => {
-
-module.exports = require("@nestjs/platform-express");
-
-/***/ }),
-/* 63 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.FileUploadService = void 0;
-const common_1 = __webpack_require__(2);
-const fs_1 = __webpack_require__(64);
-const path = __importStar(__webpack_require__(65));
-const crypto = __importStar(__webpack_require__(45));
-let FileUploadService = class FileUploadService {
-    constructor() {
-        this.uploadDir = path.join(process.cwd(), "public", "uploads");
-    }
-    async onModuleInit() {
-        try {
-            await fs_1.promises.mkdir(this.uploadDir, { recursive: true });
-        }
-        catch (error) {
-            console.error("Failed to create upload directory:", error);
-        }
-    }
-    async uploadImage(file) {
-        if (!file) {
-            throw new common_1.BadRequestException("No file provided");
-        }
-        if (!file.mimetype.startsWith("image/")) {
-            throw new common_1.BadRequestException("Only image files are allowed");
-        }
-        const maxSize = 5 * 1024 * 1024;
-        if (file.size > maxSize) {
-            throw new common_1.BadRequestException("File size exceeds 5MB limit");
-        }
-        try {
-            const fileName = crypto.randomBytes(16).toString("hex") + "_" + Date.now();
-            const filePath = path.join(this.uploadDir, fileName);
-            await fs_1.promises.writeFile(filePath, file.buffer);
-            return "/uploads/" + fileName;
-        }
-        catch (error) {
-            throw new common_1.BadRequestException("File upload failed");
-        }
-    }
-    async uploadVideo(file) {
-        if (!file) {
-            throw new common_1.BadRequestException("No file provided");
-        }
-        if (!file.mimetype.startsWith("video/")) {
-            throw new common_1.BadRequestException("Only video files are allowed");
-        }
-        const maxSize = 100 * 1024 * 1024;
-        if (file.size > maxSize) {
-            throw new common_1.BadRequestException("File size exceeds 100MB limit");
-        }
-        try {
-            const fileName = crypto.randomBytes(16).toString("hex") + "_" + Date.now();
-            const filePath = path.join(this.uploadDir, fileName);
-            await fs_1.promises.writeFile(filePath, file.buffer);
-            return "/uploads/" + fileName;
-        }
-        catch (error) {
-            throw new common_1.BadRequestException("File upload failed");
-        }
-    }
-};
-exports.FileUploadService = FileUploadService;
-exports.FileUploadService = FileUploadService = __decorate([
-    (0, common_1.Injectable)()
-], FileUploadService);
-
-
-/***/ }),
-/* 64 */
-/***/ ((module) => {
-
-module.exports = require("fs");
-
-/***/ }),
 /* 65 */
 /***/ ((module) => {
 
-module.exports = require("path");
+module.exports = require("@nestjs/platform-express");
 
 /***/ }),
 /* 66 */
@@ -3529,7 +3527,7 @@ exports.ProductApprovalModule = void 0;
 const common_1 = __webpack_require__(2);
 const product_approval_service_1 = __webpack_require__(67);
 const product_approval_controller_1 = __webpack_require__(68);
-const database_module_1 = __webpack_require__(11);
+const database_module_1 = __webpack_require__(10);
 let ProductApprovalModule = class ProductApprovalModule {
 };
 exports.ProductApprovalModule = ProductApprovalModule;
@@ -3560,7 +3558,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProductApprovalService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 let ProductApprovalService = class ProductApprovalService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -3639,8 +3637,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProductApprovalController = void 0;
 const common_1 = __webpack_require__(2);
 const product_approval_service_1 = __webpack_require__(67);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const roles_decorator_1 = __webpack_require__(31);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_decorator_1 = __webpack_require__(30);
 let ProductApprovalController = class ProductApprovalController {
     constructor(service) {
         this.service = service;
@@ -3733,7 +3731,7 @@ exports.SellerKycModule = void 0;
 const common_1 = __webpack_require__(2);
 const seller_kyc_service_1 = __webpack_require__(70);
 const seller_kyc_controller_1 = __webpack_require__(71);
-const database_module_1 = __webpack_require__(11);
+const database_module_1 = __webpack_require__(10);
 let SellerKycModule = class SellerKycModule {
 };
 exports.SellerKycModule = SellerKycModule;
@@ -3764,7 +3762,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SellerKycService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 let SellerKycService = class SellerKycService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -3847,9 +3845,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.KycAdminController = exports.SellerKycController = void 0;
 const common_1 = __webpack_require__(2);
 const seller_kyc_service_1 = __webpack_require__(70);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const current_user_decorator_1 = __webpack_require__(24);
-const roles_decorator_1 = __webpack_require__(31);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const current_user_decorator_1 = __webpack_require__(23);
+const roles_decorator_1 = __webpack_require__(30);
 const submit_kyc_dto_1 = __webpack_require__(72);
 let SellerKycController = class SellerKycController {
     constructor(service) {
@@ -3943,7 +3941,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SubmitKycDto = void 0;
-const class_validator_1 = __webpack_require__(21);
+const class_validator_1 = __webpack_require__(20);
 const class_transformer_1 = __webpack_require__(73);
 class KycDocumentDto {
 }
@@ -3988,7 +3986,7 @@ exports.DeliveryManagementModule = void 0;
 const common_1 = __webpack_require__(2);
 const delivery_management_service_1 = __webpack_require__(75);
 const delivery_management_controller_1 = __webpack_require__(76);
-const database_module_1 = __webpack_require__(11);
+const database_module_1 = __webpack_require__(10);
 let DeliveryManagementModule = class DeliveryManagementModule {
 };
 exports.DeliveryManagementModule = DeliveryManagementModule;
@@ -4019,7 +4017,7 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DeliveryManagementService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 const config_1 = __webpack_require__(6);
 let DeliveryManagementService = class DeliveryManagementService {
     constructor(prisma, configService) {
@@ -4270,10 +4268,10 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DeliveryManagementController = void 0;
 const common_1 = __webpack_require__(2);
 const delivery_management_service_1 = __webpack_require__(75);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const current_user_decorator_1 = __webpack_require__(24);
-const client_1 = __webpack_require__(13);
-const roles_decorator_1 = __webpack_require__(31);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const current_user_decorator_1 = __webpack_require__(23);
+const client_1 = __webpack_require__(12);
+const roles_decorator_1 = __webpack_require__(30);
 let DeliveryManagementController = class DeliveryManagementController {
     constructor(service) {
         this.service = service;
@@ -4349,7 +4347,7 @@ exports.MessageModerationModule = void 0;
 const common_1 = __webpack_require__(2);
 const message_moderation_service_1 = __webpack_require__(78);
 const message_moderation_controller_1 = __webpack_require__(79);
-const database_module_1 = __webpack_require__(11);
+const database_module_1 = __webpack_require__(10);
 let MessageModerationModule = class MessageModerationModule {
 };
 exports.MessageModerationModule = MessageModerationModule;
@@ -4380,8 +4378,8 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MessageModerationService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
-const crypto_1 = __webpack_require__(44);
+const prisma_service_1 = __webpack_require__(11);
+const crypto_1 = __webpack_require__(43);
 const config_1 = __webpack_require__(6);
 let MessageModerationService = class MessageModerationService {
     constructor(prisma, configService) {
@@ -4512,8 +4510,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MessageModerationController = void 0;
 const common_1 = __webpack_require__(2);
 const message_moderation_service_1 = __webpack_require__(78);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const roles_decorator_1 = __webpack_require__(31);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_decorator_1 = __webpack_require__(30);
 let MessageModerationController = class MessageModerationController {
     constructor(service) {
         this.service = service;
@@ -4595,7 +4593,7 @@ exports.AnalyticsModule = void 0;
 const common_1 = __webpack_require__(2);
 const analytics_service_1 = __webpack_require__(81);
 const analytics_controller_1 = __webpack_require__(82);
-const database_module_1 = __webpack_require__(11);
+const database_module_1 = __webpack_require__(10);
 let AnalyticsModule = class AnalyticsModule {
 };
 exports.AnalyticsModule = AnalyticsModule;
@@ -4626,7 +4624,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AnalyticsService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 let AnalyticsService = class AnalyticsService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -4766,8 +4764,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AnalyticsController = void 0;
 const common_1 = __webpack_require__(2);
 const analytics_service_1 = __webpack_require__(81);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const roles_decorator_1 = __webpack_require__(31);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_decorator_1 = __webpack_require__(30);
 let AnalyticsController = class AnalyticsController {
     constructor(service) {
         this.service = service;
@@ -4892,7 +4890,7 @@ exports.PrivacyModule = void 0;
 const common_1 = __webpack_require__(2);
 const privacy_service_1 = __webpack_require__(84);
 const privacy_controller_1 = __webpack_require__(85);
-const database_module_1 = __webpack_require__(11);
+const database_module_1 = __webpack_require__(10);
 let PrivacyModule = class PrivacyModule {
 };
 exports.PrivacyModule = PrivacyModule;
@@ -4924,7 +4922,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PrivacyService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 let PrivacyService = class PrivacyService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -5135,7 +5133,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreatePrivacySettingsDto = void 0;
-const class_validator_1 = __webpack_require__(21);
+const class_validator_1 = __webpack_require__(20);
 class CreatePrivacySettingsDto {
 }
 exports.CreatePrivacySettingsDto = CreatePrivacySettingsDto;
@@ -5170,7 +5168,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JwtGuard = void 0;
 const common_1 = __webpack_require__(2);
-const passport_1 = __webpack_require__(16);
+const passport_1 = __webpack_require__(15);
 let JwtGuard = class JwtGuard extends (0, passport_1.AuthGuard)("jwt") {
     canActivate(context) {
         return super.canActivate(context);
@@ -5204,7 +5202,7 @@ exports.CustomerServiceModule = void 0;
 const common_1 = __webpack_require__(2);
 const customer_service_service_1 = __webpack_require__(89);
 const customer_service_controller_1 = __webpack_require__(90);
-const database_module_1 = __webpack_require__(11);
+const database_module_1 = __webpack_require__(10);
 let CustomerServiceModule = class CustomerServiceModule {
 };
 exports.CustomerServiceModule = CustomerServiceModule;
@@ -5236,7 +5234,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CustomerServiceService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 let CustomerServiceService = class CustomerServiceService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -5323,8 +5321,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CustomerServiceController = void 0;
 const common_1 = __webpack_require__(2);
 const customer_service_service_1 = __webpack_require__(89);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const roles_decorator_1 = __webpack_require__(31);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_decorator_1 = __webpack_require__(30);
 const create_ticket_dto_1 = __webpack_require__(91);
 let CustomerServiceController = class CustomerServiceController {
     constructor(service) {
@@ -5432,7 +5430,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreateTicketDto = void 0;
-const class_validator_1 = __webpack_require__(21);
+const class_validator_1 = __webpack_require__(20);
 class CreateTicketDto {
 }
 exports.CreateTicketDto = CreateTicketDto;
@@ -5471,7 +5469,7 @@ exports.WebSocketModule = void 0;
 const common_1 = __webpack_require__(2);
 const websocket_gateway_1 = __webpack_require__(93);
 const websocket_service_1 = __webpack_require__(96);
-const database_module_1 = __webpack_require__(11);
+const database_module_1 = __webpack_require__(10);
 let WebSocketModule = class WebSocketModule {
 };
 exports.WebSocketModule = WebSocketModule;
@@ -5507,7 +5505,7 @@ exports.NotificationGateway = void 0;
 const websockets_1 = __webpack_require__(94);
 const socket_io_1 = __webpack_require__(95);
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 let NotificationGateway = class NotificationGateway {
     constructor(prisma) {
         this.prisma = prisma;
@@ -5647,43 +5645,6 @@ exports["default"] = () => ({
 
 /***/ }),
 /* 98 */
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getBullConfig = void 0;
-const getBullConfig = (configService) => {
-    const redisHost = configService.get("REDIS_HOST", "localhost");
-    const redisPort = configService.get("REDIS_PORT", 6379);
-    const redisPassword = configService.get("REDIS_PASSWORD");
-    const redisConfig = {
-        host: redisHost,
-        port: redisPort,
-        ...(redisPassword && { password: redisPassword }),
-    };
-    return {
-        redis: redisConfig,
-        defaultJobOptions: {
-            attempts: 3,
-            backoff: {
-                type: "exponential",
-                delay: 2000,
-            },
-            timeout: 30 * 60 * 1000,
-            removeOnComplete: {
-                age: 3600,
-            },
-            removeOnFail: {
-                age: 86400,
-            },
-        },
-    };
-};
-exports.getBullConfig = getBullConfig;
-
-
-/***/ }),
-/* 99 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5696,9 +5657,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DisputesModule = void 0;
 const common_1 = __webpack_require__(2);
-const disputes_service_1 = __webpack_require__(100);
-const disputes_controller_1 = __webpack_require__(101);
-const database_module_1 = __webpack_require__(11);
+const disputes_service_1 = __webpack_require__(99);
+const disputes_controller_1 = __webpack_require__(100);
+const database_module_1 = __webpack_require__(10);
 let DisputesModule = class DisputesModule {
 };
 exports.DisputesModule = DisputesModule;
@@ -5712,7 +5673,7 @@ exports.DisputesModule = DisputesModule = __decorate([
 
 
 /***/ }),
-/* 100 */
+/* 99 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5729,10 +5690,10 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DisputesService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
-const roles_decorator_1 = __webpack_require__(31);
+const prisma_service_1 = __webpack_require__(11);
+const roles_decorator_1 = __webpack_require__(30);
 const config_1 = __webpack_require__(6);
-const schedule_1 = __webpack_require__(10);
+const schedule_1 = __webpack_require__(9);
 let DisputesService = class DisputesService {
     constructor(prisma, configService) {
         this.prisma = prisma;
@@ -5834,7 +5795,7 @@ exports.DisputesService = DisputesService = __decorate([
 
 
 /***/ }),
-/* 101 */
+/* 100 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5854,11 +5815,11 @@ var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AdminDisputesController = exports.DisputesController = void 0;
 const common_1 = __webpack_require__(2);
-const disputes_service_1 = __webpack_require__(100);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const roles_decorator_1 = __webpack_require__(31);
-const create_dispute_dto_1 = __webpack_require__(102);
-const update_dispute_dto_1 = __webpack_require__(103);
+const disputes_service_1 = __webpack_require__(99);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_decorator_1 = __webpack_require__(30);
+const create_dispute_dto_1 = __webpack_require__(101);
+const update_dispute_dto_1 = __webpack_require__(102);
 let DisputesController = class DisputesController {
     constructor(service) {
         this.service = service;
@@ -5930,7 +5891,7 @@ exports.AdminDisputesController = AdminDisputesController = __decorate([
 
 
 /***/ }),
-/* 102 */
+/* 101 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5946,8 +5907,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreateDisputeDto = void 0;
-const class_validator_1 = __webpack_require__(21);
-const client_1 = __webpack_require__(13);
+const class_validator_1 = __webpack_require__(20);
+const client_1 = __webpack_require__(12);
 class CreateDisputeDto {
 }
 exports.CreateDisputeDto = CreateDisputeDto;
@@ -5967,7 +5928,7 @@ __decorate([
 
 
 /***/ }),
-/* 103 */
+/* 102 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5983,8 +5944,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpdateDisputeDto = void 0;
-const class_validator_1 = __webpack_require__(21);
-const client_1 = __webpack_require__(13);
+const class_validator_1 = __webpack_require__(20);
+const client_1 = __webpack_require__(12);
 class UpdateDisputeDto {
 }
 exports.UpdateDisputeDto = UpdateDisputeDto;
@@ -6006,7 +5967,7 @@ __decorate([
 
 
 /***/ }),
-/* 104 */
+/* 103 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6019,9 +5980,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ReferralsModule = void 0;
 const common_1 = __webpack_require__(2);
-const referrals_service_1 = __webpack_require__(105);
-const referrals_controller_1 = __webpack_require__(106);
-const database_module_1 = __webpack_require__(11);
+const referrals_service_1 = __webpack_require__(104);
+const referrals_controller_1 = __webpack_require__(105);
+const database_module_1 = __webpack_require__(10);
 let ReferralsModule = class ReferralsModule {
 };
 exports.ReferralsModule = ReferralsModule;
@@ -6035,7 +5996,7 @@ exports.ReferralsModule = ReferralsModule = __decorate([
 
 
 /***/ }),
-/* 105 */
+/* 104 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6052,7 +6013,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ReferralsService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 let ReferralsService = class ReferralsService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -6080,7 +6041,7 @@ exports.ReferralsService = ReferralsService = __decorate([
 
 
 /***/ }),
-/* 106 */
+/* 105 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6100,10 +6061,10 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ReferralsController = void 0;
 const common_1 = __webpack_require__(2);
-const referrals_service_1 = __webpack_require__(105);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const roles_decorator_1 = __webpack_require__(31);
-const create_referral_dto_1 = __webpack_require__(107);
+const referrals_service_1 = __webpack_require__(104);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_decorator_1 = __webpack_require__(30);
+const create_referral_dto_1 = __webpack_require__(106);
 let ReferralsController = class ReferralsController {
     constructor(service) {
         this.service = service;
@@ -6140,7 +6101,7 @@ exports.ReferralsController = ReferralsController = __decorate([
 
 
 /***/ }),
-/* 107 */
+/* 106 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6155,7 +6116,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreateReferralDto = void 0;
-const class_validator_1 = __webpack_require__(21);
+const class_validator_1 = __webpack_require__(20);
 class CreateReferralDto {
 }
 exports.CreateReferralDto = CreateReferralDto;
@@ -6166,7 +6127,7 @@ __decorate([
 
 
 /***/ }),
-/* 108 */
+/* 107 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6179,9 +6140,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SubscriptionsModule = void 0;
 const common_1 = __webpack_require__(2);
-const subscriptions_service_1 = __webpack_require__(109);
-const subscriptions_controller_1 = __webpack_require__(110);
-const database_module_1 = __webpack_require__(11);
+const subscriptions_service_1 = __webpack_require__(108);
+const subscriptions_controller_1 = __webpack_require__(109);
+const database_module_1 = __webpack_require__(10);
 let SubscriptionsModule = class SubscriptionsModule {
 };
 exports.SubscriptionsModule = SubscriptionsModule;
@@ -6195,7 +6156,7 @@ exports.SubscriptionsModule = SubscriptionsModule = __decorate([
 
 
 /***/ }),
-/* 109 */
+/* 108 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6212,7 +6173,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SubscriptionsService = void 0;
 const common_1 = __webpack_require__(2);
-const prisma_service_1 = __webpack_require__(12);
+const prisma_service_1 = __webpack_require__(11);
 let SubscriptionsService = class SubscriptionsService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -6251,7 +6212,7 @@ exports.SubscriptionsService = SubscriptionsService = __decorate([
 
 
 /***/ }),
-/* 110 */
+/* 109 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6271,10 +6232,10 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SubscriptionsController = void 0;
 const common_1 = __webpack_require__(2);
-const subscriptions_service_1 = __webpack_require__(109);
-const jwt_auth_guard_1 = __webpack_require__(23);
-const roles_decorator_1 = __webpack_require__(31);
-const create_subscription_dto_1 = __webpack_require__(111);
+const subscriptions_service_1 = __webpack_require__(108);
+const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_decorator_1 = __webpack_require__(30);
+const create_subscription_dto_1 = __webpack_require__(110);
 let SubscriptionsController = class SubscriptionsController {
     constructor(service) {
         this.service = service;
@@ -6322,7 +6283,7 @@ exports.SubscriptionsController = SubscriptionsController = __decorate([
 
 
 /***/ }),
-/* 111 */
+/* 110 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6337,7 +6298,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreateSubscriptionDto = void 0;
-const class_validator_1 = __webpack_require__(21);
+const class_validator_1 = __webpack_require__(20);
 class CreateSubscriptionDto {
 }
 exports.CreateSubscriptionDto = CreateSubscriptionDto;
@@ -6348,7 +6309,7 @@ __decorate([
 
 
 /***/ }),
-/* 112 */
+/* 111 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6361,8 +6322,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FulfillmentModule = void 0;
 const common_1 = __webpack_require__(2);
-const fulfillment_service_1 = __webpack_require__(113);
-const database_module_1 = __webpack_require__(11);
+const fulfillment_service_1 = __webpack_require__(112);
+const database_module_1 = __webpack_require__(10);
 let FulfillmentModule = class FulfillmentModule {
 };
 exports.FulfillmentModule = FulfillmentModule;
@@ -6375,7 +6336,7 @@ exports.FulfillmentModule = FulfillmentModule = __decorate([
 
 
 /***/ }),
-/* 113 */
+/* 112 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6392,9 +6353,9 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FulfillmentService = void 0;
 const common_1 = __webpack_require__(2);
-const schedule_1 = __webpack_require__(10);
-const prisma_service_1 = __webpack_require__(12);
-const client_1 = __webpack_require__(13);
+const schedule_1 = __webpack_require__(9);
+const prisma_service_1 = __webpack_require__(11);
+const client_1 = __webpack_require__(12);
 let FulfillmentService = class FulfillmentService {
     constructor(prisma) {
         this.prisma = prisma;

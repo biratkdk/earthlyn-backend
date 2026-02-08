@@ -1,8 +1,7 @@
-import { Module } from "@nestjs/common";
+﻿import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
-import { BullModule } from "@nestjs/bull";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { ScheduleModule } from "@nestjs/schedule";
 import { DatabaseModule } from "./database/database.module";
@@ -24,7 +23,6 @@ import { PrivacyModule } from "./privacy/privacy.module";
 import { CustomerServiceModule } from "./customer-service/customer-service.module";
 import { WebSocketModule } from "./websocket/websocket.module";
 import configuration from "./config/configuration";
-import { getBullConfig } from "./config/bull.config";
 import { RolesGuard } from "./common/guards/roles.guard";
 import { DisputesModule } from "./disputes/disputes.module";
 import { ReferralsModule } from "./referrals/referrals.module";
@@ -60,16 +58,6 @@ import { FulfillmentModule } from "./fulfillment/fulfillment.module";
       }),
       inject: [ConfigService],
     }),
-    // Bull Queue Configuration for async job processing
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => getBullConfig(configService),
-    }),
-    // Register specific queues
-    BullModule.registerQueue(
-      { name: "email" },
-      { name: "notifications" }
-    ),
     DatabaseModule,
     AuthModule,
     SellerModule,
@@ -99,3 +87,4 @@ import { FulfillmentModule } from "./fulfillment/fulfillment.module";
   ],
 })
 export class AppModule {}
+

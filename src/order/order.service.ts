@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException, Logger } from "@nestjs/common";
+import { Injectable, BadRequestException, NotFoundException, Logger, Optional } from "@nestjs/common";
 import { PrismaService } from "../database/prisma.service";
 import { QueueService } from "../common/services/queue.service";
 import { CreateOrderDto } from "./dto/create-order.dto";
@@ -10,7 +10,7 @@ export class OrderService {
 
   constructor(
     private prismaService: PrismaService,
-    private queueService: QueueService
+    @Optional() private queueService: QueueService
   ) {}
 
   async create(buyerId: string, createOrderDto: CreateOrderDto) {
@@ -252,3 +252,4 @@ export class OrderService {
     return updatedOrder;
   }
 }
+
