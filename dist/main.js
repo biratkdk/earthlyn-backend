@@ -625,14 +625,17 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JwtAuthGuard = void 0;
 const common_1 = __webpack_require__(2);
 const passport_1 = __webpack_require__(15);
-let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
+let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)("jwt") {
     canActivate(context) {
         return super.canActivate(context);
     }
-    handleRequest(err, user) {
+    handleRequest(err, user, info, context) {
         if (err || !user) {
-            throw err || new common_1.UnauthorizedException('Unauthorized');
+            throw err || new common_1.UnauthorizedException("Unauthorized");
         }
+        const request = context.switchToHttp().getRequest();
+        request.user = user;
+        console.log("[JWT-AUTH-GUARD] User attached to request:", JSON.stringify(user));
         return user;
     }
 };
