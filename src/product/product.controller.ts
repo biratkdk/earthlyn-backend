@@ -3,7 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import type { Multer } from 'multer';
 import { ProductService } from './product.service';
 import { FileUploadService } from '../common/services/file-upload.service';
-import { RolesGuard } from '../common/guards/roles.guard';\nimport { RolesGuard } from '../common/guards/roles.guard'
+import { RolesGuard } from '../common/guards/roles.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Roles, UserRole } from '../common/decorators/roles.decorator';
 
@@ -90,5 +90,6 @@ export class ProductController {
     return this.productService.delete(id);
   }
 }
+
 
 

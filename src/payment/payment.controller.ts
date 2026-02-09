@@ -1,7 +1,7 @@
 import { Controller, Post, Get, Body, Param, UseGuards, Request, Req } from "@nestjs/common";
 import { PaymentService } from "./payment.service";
 import { CreatePaymentIntentDto } from "./dto/create-payment-intent.dto";
-import { RolesGuard } from '../common/guards/roles.guard';\nimport { RolesGuard } from '../common/guards/roles.guard'
+import { RolesGuard } from '../common/guards/roles.guard';
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { Roles, UserRole } from "../common/decorators/roles.decorator";
 
@@ -52,5 +52,6 @@ export class PaymentController {
     return this.paymentService.handleWebhook(req.rawBody, signature);
   }
 }
+
 
 

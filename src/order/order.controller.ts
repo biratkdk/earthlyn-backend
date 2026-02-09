@@ -13,7 +13,7 @@ import {
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderStatus } from '@prisma/client';
-import { RolesGuard } from '../common/guards/roles.guard';\nimport { RolesGuard } from '../common/guards/roles.guard'
+import { RolesGuard } from '../common/guards/roles.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/decorators/roles.decorator';
@@ -104,5 +104,6 @@ export class OrderController {
     return this.orderService.remove(id);
   }
 }
+
 
 

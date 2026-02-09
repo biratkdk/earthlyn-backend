@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Param, UseGuards, Query } from '@nestjs/common';
 import { ProductApprovalService } from './product-approval.service';
-import { RolesGuard } from '../common/guards/roles.guard';\nimport { RolesGuard } from '../common/guards/roles.guard'
+import { RolesGuard } from '../common/guards/roles.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Roles, UserRole } from '../common/decorators/roles.decorator';
 
@@ -40,5 +40,6 @@ export class ProductApprovalController {
     return this.service.rejectProduct(productId);
   }
 }
+
 
 
