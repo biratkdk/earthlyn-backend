@@ -670,6 +670,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var JwtStrategy_1;
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JwtStrategy = void 0;
@@ -677,12 +678,30 @@ const common_1 = __webpack_require__(2);
 const passport_1 = __webpack_require__(15);
 const passport_jwt_1 = __webpack_require__(25);
 const config_1 = __webpack_require__(6);
-let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy) {
-    constructor(configService) { super({ jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(), ignoreExpiration: false, secretOrKey: configService.get('jwt.secret'), }); }
-    validate(payload) { return { id: payload.sub, email: payload.email, role: payload.role }; }
+let JwtStrategy = JwtStrategy_1 = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy) {
+    constructor(configService) {
+        const secret = configService.get("jwt.secret");
+        console.log("[JWT-INIT] JWT Strategy initialized with secret:", secret ? secret.substring(0, 10) + "..." : "MISSING");
+        super({
+            jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
+            ignoreExpiration: false,
+            secretOrKey: secret,
+        });
+        this.logger = new common_1.Logger(JwtStrategy_1.name);
+    }
+    validate(payload) {
+        this.logger.debug("[JWT-VALIDATE] Payload received:", JSON.stringify(payload));
+        const user = {
+            id: payload.sub,
+            email: payload.email,
+            role: payload.role,
+        };
+        this.logger.debug("[JWT-VALIDATE] Returning user object:", JSON.stringify(user));
+        return user;
+    }
 };
 exports.JwtStrategy = JwtStrategy;
-exports.JwtStrategy = JwtStrategy = __decorate([
+exports.JwtStrategy = JwtStrategy = JwtStrategy_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [typeof (_a = typeof config_1.ConfigService !== "undefined" && config_1.ConfigService) === "function" ? _a : Object])
 ], JwtStrategy);
@@ -1768,17 +1787,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var RolesGuard_1;
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RolesGuard = void 0;
 const common_1 = __webpack_require__(2);
 const core_1 = __webpack_require__(1);
-let RolesGuard = class RolesGuard {
+let RolesGuard = RolesGuard_1 = class RolesGuard {
     constructor(reflector) {
         this.reflector = reflector;
+        this.logger = new common_1.Logger(RolesGuard_1.name);
     }
     canActivate(context) {
-        const requiredRoles = this.reflector.getAllAndOverride('roles', [
+        const requiredRoles = this.reflector.getAllAndOverride("roles", [
             context.getHandler(),
             context.getClass(),
         ]);
@@ -1786,18 +1807,22 @@ let RolesGuard = class RolesGuard {
             return true;
         }
         const { user } = context.switchToHttp().getRequest();
+        this.logger.debug("[ROLES-GUARD] User from request:", user ? JSON.stringify(user) : "NULL/UNDEFINED");
+        this.logger.debug("[ROLES-GUARD] Required roles:", requiredRoles);
         if (!user) {
-            throw new common_1.ForbiddenException('No user found');
+            this.logger.error("[ROLES-GUARD] No user found in request!");
+            throw new common_1.ForbiddenException("No user found");
         }
         const hasRole = () => requiredRoles.some((role) => user.role === role);
         if (!hasRole()) {
-            throw new common_1.ForbiddenException('Insufficient permissions');
+            this.logger.warn("[ROLES-GUARD] User role mismatch - user.role:", user.role, "required:", requiredRoles);
+            throw new common_1.ForbiddenException("Insufficient permissions");
         }
         return true;
     }
 };
 exports.RolesGuard = RolesGuard;
-exports.RolesGuard = RolesGuard = __decorate([
+exports.RolesGuard = RolesGuard = RolesGuard_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [typeof (_a = typeof core_1.Reflector !== "undefined" && core_1.Reflector) === "function" ? _a : Object])
 ], RolesGuard);
