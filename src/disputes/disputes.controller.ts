@@ -1,12 +1,13 @@
 import { Controller, Get, Post, Patch, Body, Param, UseGuards, Request, Query } from '@nestjs/common';
 import { DisputesService } from './disputes.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles, UserRole } from '../common/decorators/roles.decorator';
 import { CreateDisputeDto } from './dto/create-dispute.dto';
 import { UpdateDisputeDto } from './dto/update-dispute.dto';
 
 @Controller('disputes')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class DisputesController {
   constructor(private readonly service: DisputesService) {}
 
@@ -24,7 +25,7 @@ export class DisputesController {
 }
 
 @Controller('admin/disputes')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN, UserRole.CUSTOMER_SERVICE)
 export class AdminDisputesController {
   constructor(private readonly service: DisputesService) {}
@@ -39,3 +40,5 @@ export class AdminDisputesController {
     return this.service.update(id, req.user.id, dto);
   }
 }
+
+
