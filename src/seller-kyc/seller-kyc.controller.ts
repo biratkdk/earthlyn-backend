@@ -1,12 +1,13 @@
 import { Controller, Post, Get, UseGuards, Body, Param } from '@nestjs/common';
 import { SellerKycService } from './seller-kyc.service';
+import { RolesGuard } from '../common/guards/roles.guard';\nimport { RolesGuard } from '../common/guards/roles.guard'
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles, UserRole } from '../common/decorators/roles.decorator';
 import { SubmitKycDto } from './dto/submit-kyc.dto';
 
 @Controller('seller/kyc')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.SELLER, UserRole.ADMIN)
 export class SellerKycController {
   constructor(private readonly service: SellerKycService) {}
@@ -23,7 +24,7 @@ export class SellerKycController {
 }
 
 @Controller('admin/kyc')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
 export class KycAdminController {
   constructor(private readonly service: SellerKycService) {}
@@ -43,3 +44,5 @@ export class KycAdminController {
     return this.service.rejectKyc(sellerId);
   }
 }
+
+

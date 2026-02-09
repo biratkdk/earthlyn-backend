@@ -1,4 +1,4 @@
-﻿import {
+import {
   Controller,
   Get,
   Post,
@@ -13,6 +13,7 @@
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderStatus } from '@prisma/client';
+import { RolesGuard } from '../common/guards/roles.guard';\nimport { RolesGuard } from '../common/guards/roles.guard'
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/decorators/roles.decorator';
@@ -23,14 +24,14 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.ADMIN)
   create(@Request() req, @Body() createOrderDto: CreateOrderDto) {
     return this.orderService.create(req.user.id, createOrderDto);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.CUSTOMER_SERVICE)
   findAll(
     @Query('buyerId') buyerId?: string,
@@ -41,7 +42,7 @@ export class OrderController {
 
   // Specific routes MUST come before generic :id route
   @Get('buyer/:buyerId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.ADMIN)
   findByBuyer(@Request() req, @Param('buyerId') buyerId: string) {
     if (req.user.role === UserRole.BUYER && req.user.id !== buyerId) {
@@ -51,14 +52,14 @@ export class OrderController {
   }
 
   @Get('status/:status')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.CUSTOMER_SERVICE)
   findByStatus(@Param('status') status: OrderStatus) {
     return this.orderService.findByStatus(status);
   }
 
   @Post(':id/cancel')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.ADMIN)
   async cancelOrder(@Request() req, @Param('id') orderId: string) {
     return this.orderService.cancelOrder(orderId, req.user.id);
@@ -66,7 +67,7 @@ export class OrderController {
 
   // Generic :id route comes last
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.BUYER, UserRole.SELLER, UserRole.CUSTOMER_SERVICE)
   async findOne(@Request() req, @Param('id') id: string) {
     const order = await this.orderService.findOne(id);
@@ -83,7 +84,7 @@ export class OrderController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SELLER)
   async update(@Request() req, @Param('id') id: string, @Body() data: any) {
     if (req.user.role === UserRole.SELLER) {
@@ -97,9 +98,11 @@ export class OrderController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   remove(@Param('id') id: string) {
     return this.orderService.remove(id);
   }
 }
+
+

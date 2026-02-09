@@ -1,6 +1,7 @@
 import { Controller, Post, Get, Body, Param, UseGuards, Request, Req } from "@nestjs/common";
 import { PaymentService } from "./payment.service";
 import { CreatePaymentIntentDto } from "./dto/create-payment-intent.dto";
+import { RolesGuard } from '../common/guards/roles.guard';\nimport { RolesGuard } from '../common/guards/roles.guard'
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { Roles, UserRole } from "../common/decorators/roles.decorator";
 
@@ -9,7 +10,7 @@ export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post("create-intent")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.ADMIN)
   async createPaymentIntent(
     @Request() req,
@@ -22,21 +23,21 @@ export class PaymentController {
   }
 
   @Get(":paymentIntentId/status")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.ADMIN)
   async getPaymentStatus(@Param("paymentIntentId") paymentIntentId: string) {
     return await this.paymentService.getPaymentIntentStatus(paymentIntentId);
   }
 
   @Post(":paymentIntentId/confirm")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.ADMIN)
   async confirmPayment(@Param("paymentIntentId") paymentIntentId: string) {
     return await this.paymentService.confirmPaymentIntent(paymentIntentId);
   }
 
   @Post(":paymentIntentId/refund")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.ADMIN)
   async refundPayment(
     @Param("paymentIntentId") paymentIntentId: string,
@@ -51,3 +52,5 @@ export class PaymentController {
     return this.paymentService.handleWebhook(req.rawBody, signature);
   }
 }
+
+

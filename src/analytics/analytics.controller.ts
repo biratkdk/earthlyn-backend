@@ -1,10 +1,11 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
+import { RolesGuard } from '../common/guards/roles.guard';\nimport { RolesGuard } from '../common/guards/roles.guard'
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Roles, UserRole } from '../common/decorators/roles.decorator';
 
 @Controller('admin/analytics')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
 export class AnalyticsController {
   constructor(private readonly service: AnalyticsService) {}
@@ -59,3 +60,5 @@ export class AnalyticsController {
     return this.service.getTopCategories(parseInt(limit || '10'));
   }
 }
+
+

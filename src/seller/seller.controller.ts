@@ -1,11 +1,12 @@
-﻿import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, ForbiddenException, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, ForbiddenException, Query } from '@nestjs/common';
 import { SellerService } from './seller.service';
 import { CreateSellerDto } from './dto/create-seller.dto';
+import { RolesGuard } from '../common/guards/roles.guard';\nimport { RolesGuard } from '../common/guards/roles.guard'
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Roles, UserRole } from '../common/decorators/roles.decorator';
 
 @Controller('sellers')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class SellerController {
   constructor(private sellerService: SellerService) {}
 
@@ -87,3 +88,5 @@ export class SellerController {
     return this.sellerService.remove(id);
   }
 }
+
+

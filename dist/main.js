@@ -5853,6 +5853,7 @@ exports.AdminDisputesController = exports.DisputesController = void 0;
 const common_1 = __webpack_require__(2);
 const disputes_service_1 = __webpack_require__(99);
 const jwt_auth_guard_1 = __webpack_require__(22);
+const roles_guard_1 = __webpack_require__(40);
 const roles_decorator_1 = __webpack_require__(30);
 const create_dispute_dto_1 = __webpack_require__(101);
 const update_dispute_dto_1 = __webpack_require__(102);
@@ -5887,7 +5888,7 @@ __decorate([
 ], DisputesController.prototype, "my", null);
 exports.DisputesController = DisputesController = __decorate([
     (0, common_1.Controller)('disputes'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [typeof (_a = typeof disputes_service_1.DisputesService !== "undefined" && disputes_service_1.DisputesService) === "function" ? _a : Object])
 ], DisputesController);
 let AdminDisputesController = class AdminDisputesController {
@@ -5920,7 +5921,7 @@ __decorate([
 ], AdminDisputesController.prototype, "update", null);
 exports.AdminDisputesController = AdminDisputesController = __decorate([
     (0, common_1.Controller)('admin/disputes'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(roles_decorator_1.UserRole.ADMIN, roles_decorator_1.UserRole.CUSTOMER_SERVICE),
     __metadata("design:paramtypes", [typeof (_c = typeof disputes_service_1.DisputesService !== "undefined" && disputes_service_1.DisputesService) === "function" ? _c : Object])
 ], AdminDisputesController);
@@ -6098,6 +6099,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ReferralsController = void 0;
 const common_1 = __webpack_require__(2);
 const referrals_service_1 = __webpack_require__(104);
+const roles_guard_1 = __webpack_require__(40);
 const jwt_auth_guard_1 = __webpack_require__(22);
 const roles_decorator_1 = __webpack_require__(30);
 const create_referral_dto_1 = __webpack_require__(106);
@@ -6130,7 +6132,7 @@ __decorate([
 ], ReferralsController.prototype, "mine", null);
 exports.ReferralsController = ReferralsController = __decorate([
     (0, common_1.Controller)('referrals'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(roles_decorator_1.UserRole.BUYER, roles_decorator_1.UserRole.SELLER, roles_decorator_1.UserRole.ADMIN),
     __metadata("design:paramtypes", [typeof (_a = typeof referrals_service_1.ReferralsService !== "undefined" && referrals_service_1.ReferralsService) === "function" ? _a : Object])
 ], ReferralsController);
@@ -6269,6 +6271,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SubscriptionsController = void 0;
 const common_1 = __webpack_require__(2);
 const subscriptions_service_1 = __webpack_require__(108);
+const roles_guard_1 = __webpack_require__(40);
 const jwt_auth_guard_1 = __webpack_require__(22);
 const roles_decorator_1 = __webpack_require__(30);
 const create_subscription_dto_1 = __webpack_require__(110);
@@ -6312,7 +6315,7 @@ __decorate([
 ], SubscriptionsController.prototype, "cancel", null);
 exports.SubscriptionsController = SubscriptionsController = __decorate([
     (0, common_1.Controller)('subscriptions'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(roles_decorator_1.UserRole.BUYER, roles_decorator_1.UserRole.SELLER, roles_decorator_1.UserRole.ADMIN),
     __metadata("design:paramtypes", [typeof (_a = typeof subscriptions_service_1.SubscriptionsService !== "undefined" && subscriptions_service_1.SubscriptionsService) === "function" ? _a : Object])
 ], SubscriptionsController);
@@ -6525,7 +6528,7 @@ async function bootstrap() {
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup("api/docs", app, document);
-    const port = process.env.PORT || 3000;
+    const port = parseInt(process.env.PORT || '10000', 10);
     await app.listen(port);
     console.log(`API running on port ${port}`);
     console.log(`Swagger docs at http://localhost:${port}/api/docs`);

@@ -3,6 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import type { Multer } from 'multer';
 import { ProductService } from './product.service';
 import { FileUploadService } from '../common/services/file-upload.service';
+import { RolesGuard } from '../common/guards/roles.guard';\nimport { RolesGuard } from '../common/guards/roles.guard'
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Roles, UserRole } from '../common/decorators/roles.decorator';
 
@@ -25,7 +26,7 @@ export class ProductController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SELLER, UserRole.ADMIN)
   async create(@Body() body: any, @Req() req: any) {
     const payload = { ...body };
@@ -38,7 +39,7 @@ export class ProductController {
   }
 
   @Post(':id/upload-image')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SELLER, UserRole.ADMIN)
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(
@@ -64,7 +65,7 @@ export class ProductController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SELLER, UserRole.ADMIN)
   async update(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     if (req.user.role !== UserRole.ADMIN) {
@@ -77,7 +78,7 @@ export class ProductController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SELLER, UserRole.ADMIN)
   async delete(@Req() req: any, @Param('id') id: string) {
     if (req.user.role !== UserRole.ADMIN) {
@@ -89,3 +90,5 @@ export class ProductController {
     return this.productService.delete(id);
   }
 }
+
+
