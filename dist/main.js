@@ -626,16 +626,19 @@ exports.JwtAuthGuard = void 0;
 const common_1 = __webpack_require__(2);
 const passport_1 = __webpack_require__(15);
 let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)("jwt") {
-    canActivate(context) {
-        const result = super.canActivate(context);
+    async canActivate(context) {
+        const result = await super.canActivate(context);
+        if (!result) {
+            return false;
+        }
         const request = context.switchToHttp().getRequest();
         if (request.user) {
-            console.log("[JWT-AUTH-GUARD] User attached to request:", JSON.stringify(request.user));
+            console.log("[JWT-AUTH-GUARD] SUCCESS - User attached to request:", JSON.stringify(request.user));
         }
         else {
-            console.log("[JWT-AUTH-GUARD] WARNING: No user found after validation");
+            console.log("[JWT-AUTH-GUARD] WARNING: JWT validated but no user on request");
         }
-        return result;
+        return true;
     }
     handleRequest(err, user) {
         if (err || !user) {

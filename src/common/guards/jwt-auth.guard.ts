@@ -7,19 +7,23 @@ import { AuthGuard } from "@nestjs/passport";
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard("jwt") {
-  canActivate(context: ExecutionContext) {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     // Call parent canActivate which runs Passport validation
-    const result = super.canActivate(context);
+    const result = await super.canActivate(context);
     
-    // After validation, explicitly attach user to request
-    const request = context.switchToHttp().getRequest();
-    if (request.user) {
-      console.log("[JWT-AUTH-GUARD] User attached to request:", JSON.stringify(request.user));
-    } else {
-      console.log("[JWT-AUTH-GUARD] WARNING: No user found after validation");
+    if (!result) {
+      return false;
     }
     
-    return result;
+    // After validation succeeds, explicitly attach user to request for RolesGuard
+    const request = context.switchToHttp().getRequest();
+    if (request.user) {
+      console.log("[JWT-AUTH-GUARD] SUCCESS - User attached to request:", JSON.stringify(request.user));
+    } else {
+      console.log("[JWT-AUTH-GUARD] WARNING: JWT validated but no user on request");
+    }
+    
+    return true;
   }
 
   handleRequest(err: any, user: any) {
