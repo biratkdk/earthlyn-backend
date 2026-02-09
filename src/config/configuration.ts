@@ -1,9 +1,10 @@
-﻿export default () => ({
+export default () => ({
   database: {
     url: process.env.DATABASE_URL,
   },
-  jwt: {
-    secret: process.env.JWT_SECRET,
+  jwt: { 
+    secret: process.env.JWT_SECRET || 'earthlyn-default-secret-2026',
+    
     expiresIn: process.env.JWT_EXPIRATION || process.env.JWT_EXPIRES_IN || "24h",
   },
   stripe: {
@@ -23,3 +24,5 @@
     password: process.env.REDIS_PASSWORD,
   },
 });
+
+
