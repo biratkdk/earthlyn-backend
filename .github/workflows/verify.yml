@@ -1,0 +1,52 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: shelfscanner
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d shelfscanner"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: shelfscanner
+      AUTH_JWT_SECRET: ci-shelfscanner-secret-change-in-production
+      AUTH_TOKEN_TTL: 7d
+      AUTH_COOKIE_SAMESITE: lax
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm ci --prefix packages/frontend
+      - run: npm ci --prefix packages/backend
+      - run: npm run db:local
+      - run: npm run verify:release
+      - name: Smoke authenticated user flow
+        run: |
+          node packages/backend/src/server.js &
+          for i in {1..20}; do
+            curl -fsS http://127.0.0.1:5000/health && break
+            sleep 1
+          done
+          npm run smoke:user

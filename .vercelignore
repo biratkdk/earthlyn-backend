@@ -1,0 +1,13 @@
+node_modules
+packages/*/node_modules
+packages/frontend/dist
+*.log
+.env
+.env.*
+.codex
+.omx
+.playwright-mcp
+.sixth
+.vscode
+awesome-codex-skills
+ShelfScanner-main

@@ -1,3 +1,30 @@
-node_modules
+node_modules/
+dist/
+build/
 .env
-.env.*
+.env.local
+*.log
+.DS_Store
+
+# Codex/local agent caches
+.codex/
+.omx/
+.playwright-mcp/
+.sixth/
+.vscode/
+
+# Root-level QA artifacts and temporary scan outputs
+/shelfscanner-*.png
+/audit-mobile-*.png
+/mobile-home-snapshot.md
+/shelfscanner-final-smoke.png
+/landing-*.png
+/scan-response.json
+/test-token.txt
+/test.png
+/tmp-*.json
+/tmp-*.png
+/css-critical-rules.json
+/book.avif
+/awesome-codex-skills/
+/ShelfScanner-main/

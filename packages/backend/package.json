@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "compression": "^1.8.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
+    "openai": "^6.29.0",
+    "pg": "^8.20.0"
+  },
+  "name": "backend",
+  "type": "commonjs",
+  "description": "ShelfScanner API",
+  "scripts": {
+    "test": "jest",
+    "lint": "node ../../scripts/check-source-hygiene.mjs --scope backend",
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "db:init": "node src/db/initDb.js"
+  },
+  "devDependencies": {
+    "jest": "^30.3.0",
+    "nodemon": "^3.1.14"
+  },
+  "main": "src/server.js"
+}
